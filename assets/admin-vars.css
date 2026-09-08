@@ -1,0 +1,115 @@
+/**
+ * 设计令牌 - AMS-FE 风格
+ * 来源：docs/reference-source-code/ams-fe/src/style/var.scss、design-tokens.css、
+ * views/leftMenu/Index.vue、views/Layout.vue、style/common.scss
+ */
+:root {
+  /* 品牌色（Element 主题覆写 $--color-primary: #007AF5） */
+  --admin-primary: #007af5;
+  --admin-primary-hover: #3395f7;
+  --admin-primary-active: #0062d1;
+  --admin-primary-light: #e6f2ff;
+  --admin-primary-pale: #f0f7ff;
+  --admin-primary-ghost: rgba(0, 122, 245, 0.12);
+
+  /* 菜单（leftMenu/Index.vue） */
+  --admin-menu-text: #5e6b7a;
+  --admin-menu-icon: #8b97a5;
+  --admin-menu-hover-bg: #e7edf7;
+  --admin-menu-hover-text: #3f4f65;
+  --admin-menu-active-bg: #2f6bff;
+  --admin-menu-active-shadow: 0 6px 14px rgba(47, 107, 255, 0.25);
+  --admin-menu-parent-active: #2f3f56;
+  --admin-menu-fold: #9aa5b3;
+  --admin-menu-fold-hover-bg: #e3e9f3;
+
+  /* 功能色 */
+  --admin-success: #52c41a;
+  --admin-success-bg: #f6ffed;
+  --admin-success-border: #b7eb8f;
+  --admin-warning: #faad14;
+  --admin-warning-bg: #fffbe6;
+  --admin-warning-border: #ffe58f;
+  --admin-danger: #ff4d4f;
+  --admin-danger-bg: #fff1f0;
+  --admin-danger-border: #ffa39e;
+  --admin-info: #007af5;
+  --admin-info-bg: #e6f2ff;
+  --admin-info-border: #91d5ff;
+
+  /* 文字色 */
+  --admin-text-primary: #111111;
+  --admin-text-regular: #434c59;
+  --admin-text-secondary: #86909c;
+  --admin-text-placeholder: #c2c6cc;
+  --admin-text-disabled: #c2c6cc;
+
+  /* 边框与分割 */
+  --admin-border: #d8dce4;
+  --admin-border-light: #eaedf6;
+  --admin-border-lighter: #e9edf6;
+
+  /* 背景（Layout.vue app-layout / app-main） */
+  --admin-bg-blank: #ffffff;
+  --admin-bg-page: #f5f7fb;
+  --admin-bg-page-outer: linear-gradient(180deg, #d7e6fa 0%, #e7edf7 100%);
+  --admin-bg-light: #f4f7fc;
+  --admin-bg-lighter: #eaf0ff;
+  --admin-bg-hover: #f4f7fc;
+  --admin-bg-active: #eaf0ff;
+
+  /* 表格（CustomTable.vue com-table-header） */
+  --admin-table-header-bg: #f4f7fc;
+  --admin-table-header-color: #111111;
+  --admin-table-row-hover: #f4f7fc;
+
+  /* 尺寸 */
+  --admin-sidebar-width: 220px;
+  --admin-sidebar-collapsed-width: 64px;
+  --admin-header-height: 54px;
+  --admin-radius-sm: 4px;
+  --admin-radius-base: 8px;
+  --admin-radius-lg: 12px;
+
+  /* 间距 */
+  --admin-gap-xs: 4px;
+  --admin-gap-sm: 8px;
+  --admin-gap-base: 12px;
+  --admin-gap-md: 16px;
+  --admin-gap-lg: 20px;
+  --admin-gap-xl: 24px;
+
+  /* 阴影 */
+  --admin-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --admin-shadow-base: 0 2px 12px rgba(0, 0, 0, 0.1);
+  --admin-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+
+  /* 字体 */
+  --admin-font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", system-ui,
+    -apple-system, sans-serif;
+  --admin-font-sm: 12px;
+  --admin-font-base: 14px;
+  --admin-font-md: 15px;
+  --admin-font-lg: 18px;
+  --admin-font-xl: 20px;
+
+  /* 控件 */
+  --admin-input-height: 32px;
+  --admin-btn-height: 32px;
+  --admin-line-height: 1.5;
+
+  /* 兼容旧页面（chat.css / reits2.js 内联样式等） */
+  --header-height: 54px;
+  --content-padding: 12px;
+  --text-primary: #111111;
+  --text-regular: #434c59;
+  --text-secondary: #86909c;
+  --text-disabled: #c2c6cc;
+  --text-placeholder: #c2c6cc;
+  --border-color: #d8dce4;
+  --color-primary: #007af5;
+  --color-primary-hover: #3395f7;
+  --fill-blank: #ffffff;
+  --fill-page: #f5f7fb;
+  --fill-light: #f4f7fc;
+}
