@@ -4,6 +4,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>基金详情</title>
+<link rel="icon" href="data:,">
 <link rel="stylesheet" href="./assets/all.min.css" data-admin-spa="base">
 <link rel="stylesheet" href="./assets/admin-vars.css" data-admin-spa="base">
 <link rel="stylesheet" href="./assets/admin-layout.css" data-admin-spa="base">
@@ -422,11 +423,11 @@ function hideFormulaTip() {
     if (formulaTipEl) formulaTipEl.style.display = 'none';
 }
 
-document.getElementById('indicatorBody').addEventListener('mouseover', function (e) {
+(document.getElementById('indicatorBody')||{addEventListener:function(){}}).addEventListener('mouseover', function (e) {
     var tag = e.target.closest ? e.target.closest('.derived-tag') : null;
     if (tag) showFormulaTip(tag);
 });
-document.getElementById('indicatorBody').addEventListener('mouseout', function (e) {
+(document.getElementById('indicatorBody')||{addEventListener:function(){}}).addEventListener('mouseout', function (e) {
     var tag = e.target.closest ? e.target.closest('.derived-tag') : null;
     if (tag && (!e.relatedTarget || !tag.contains(e.relatedTarget))) hideFormulaTip();
 });
