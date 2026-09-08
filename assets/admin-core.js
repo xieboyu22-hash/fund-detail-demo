@@ -67,7 +67,7 @@ const App = {
     localStorage.removeItem(APP_CONFIG.USER_KEY);
     this.state.token = null;
     this.state.user = null;
-    window.location.href = APP_CONFIG.BASE_PATH + '/login.html';
+    /* Demo 环境：禁用退出登录后的页面跳转 */
   },
 
   getToken() {
@@ -122,10 +122,10 @@ const App = {
     }
     
     if (this.isLoggedIn() && isLoginPage) {
-      window.location.href = APP_CONFIG.BASE_PATH + '/pages/dashboard.html';
-      return false;
+      /* Demo 环境（静态托管单页）：禁用根路径自动跳转 dashboard，避免与占位页形成跳转死循环 */
+      return true;
     }
-    
+
     return true;
   }
 };
