@@ -258,6 +258,15 @@
     </div>
 </div></main></div></div>
 
+<!-- Demo 占位元素：原页面脚本引用的元素在静态快照中不存在，补齐以避免空引用报错 -->
+<div style="display:none" aria-hidden="true">
+    <div id="entityTabs"></div>
+    <div id="indicatorPager"></div>
+    <div id="indicatorBody"></div>
+    <span id="selectedCount"></span>
+    <input type="checkbox" id="checkAll">
+    <button id="btnExtract"></button>
+</div>
 <script src="./assets/admin-core.js"></script>
 <script src="./assets/admin-utils.js"></script>
 <script src="./assets/admin-components.js"></script>
@@ -1238,7 +1247,8 @@ async function refreshRunView() {
     }
 }
 
-loadOverview().catch(function () { R2.toast('加载基金指标失败', 'error'); });
+/* Demo 环境：数据已静态渲染，不再请求原接口 */
+/* loadOverview().catch(function () { R2.toast('加载基金指标失败', 'error'); }); */
 </script>
 
 
