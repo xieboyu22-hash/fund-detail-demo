@@ -1294,4 +1294,28 @@ loadOverview().catch(function () { R2.toast('加载基金指标失败', 'error')
     update();
 })();
 </script>
+<script>
+/* ── Demo 环境导航守卫：拦截指向未部署页面的跳转，避免 404 ── */
+(function () {
+    function tip() {
+        if (window.R2 && R2.toast) { R2.toast('演示环境：该页面未包含在此 demo 中', 'info'); }
+    }
+    /* 拦截 <a> 跳转其他 html 页面（侧边栏菜单、面包屑等） */
+    document.addEventListener('click', function (e) {
+        var a = e.target.closest('a[href]');
+        if (!a) return;
+        var href = a.getAttribute('href') || '';
+        if (/\.html([?#]|$)/.test(href) && !/^(javascript:|#)/.test(href)) {
+            e.preventDefault();
+            e.stopPropagation();
+            tip();
+        }
+    }, true);
+    /* 移除按钮上的页面跳转（保留 discoverAssets 等页内功能） */
+    document.querySelectorAll('[onclick*="location.href"]').forEach(function (el) {
+        el.removeAttribute('onclick');
+        el.addEventListener('click', tip);
+    });
+})();
+</script>
 </body></html>
