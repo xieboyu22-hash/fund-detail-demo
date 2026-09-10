@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<!-- saved from url=(0097)https://gateway-open-uat.longfor.com/asset-cloud-uat/open-agent/pages/reits/fund-detail.html?id=1 -->
+<html lang="zh-CN"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>基金详情</title>
+<link rel="stylesheet" href="./fund-assets/all.min.css" data-admin-spa="base">
+<link rel="stylesheet" href="./fund-assets/admin-vars.css" data-admin-spa="base">
+<link rel="stylesheet" href="./fund-assets/admin-layout.css" data-admin-spa="base">
+<link rel="stylesheet" href="./fund-assets/admin-components.css" data-admin-spa="base">
+
+
+<script src="./fund-assets/marked.min.js"></script><script src="./fund-assets/purify.min.js"></script><script src="./fund-assets/echarts.min.js"></script><script src="./fund-assets/admin-core.js"></script><script src="./fund-assets/admin-utils.js"></script><script src="./fund-assets/admin-components.js"></script><script src="./fund-assets/admin-api.js"></script><script src="./fund-assets/page-chat.js"></script><link rel="stylesheet" href="./fund-assets/all.min.css" data-admin-spa="base"><link rel="stylesheet" href="./fund-assets/admin-vars.css" data-admin-spa="base"><link rel="stylesheet" href="./fund-assets/admin-layout.css" data-admin-spa="base"><link rel="stylesheet" href="./fund-assets/admin-components.css" data-admin-spa="base"><link rel="stylesheet" href="./fund-assets/reits2.css" data-admin-spa="page"><style data-admin-spa="page-style">
+/* ── 页头右侧 ── */
+.fd-header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+.fd-header-tags { display: flex; align-items: center; gap: 10px; font-size: var(--admin-font-sm); }
+.fd-header-right .btn { height: calc(var(--admin-btn-height) - 4px); font-weight: 600; }
+
+/* ── 板块层次：页面白底 → 板块浅蓝灰底 → 卡片白底，避免全靠分界线区分层级 ── */
+#app .desc-card { background: #f6f8fb; border-color: transparent; }
+
+/* ── 顶部指标卡片 ── */
+.fd-top-metrics { display: flex; gap: 12px; margin-bottom: var(--admin-gap-md); }
+.fd-metric-card {
+    flex: 1 1 0;
+    min-width: 0;
+    background: #f6f8fb;
+    border: 1px solid var(--admin-border-lighter);
+    border-radius: var(--admin-radius-sm);
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+    padding: 10px 14px 10px 17px;
+    position: relative;
+    overflow: hidden;
+}
+.fd-metric-card::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--mc, var(--admin-primary));
+}
+.fd-metric-card .mc-label {
+    font-size: var(--admin-font-sm);
+    color: var(--admin-text-regular);
+    margin-bottom: 4px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.fd-metric-card .mc-value { font-size: 20px; font-weight: 600; color: var(--admin-text-primary); line-height: 1.3; }
+.fd-metric-card .mc-value .mc-unit { font-size: var(--admin-font-sm); font-weight: 400; color: var(--admin-text-secondary); margin-left: 4px; }
+.fd-metric-card .mc-confidence { font-size: 11px; color: var(--admin-text-secondary); margin-top: 4px; }
+
+/* ── 百分数进度条（从右向左增长，填充比例取指标值本身） ── */
+.fd-bar { height: 4px; background: var(--admin-bg-light); border-radius: 2px; overflow: hidden; margin-top: 4px; }
+.fd-bar > i { display: block; height: 100%; margin-left: auto; background: var(--admin-success); border-radius: 2px; }
+
+/* ── 上市行情指标卡片（独立于顶部发行指标，单独一行展示，高亮面板） ── */
+.fd-quote-head {
+    display: flex; align-items: baseline; gap: 8px;
+    font-size: 15px; font-weight: 700; color: var(--admin-text-primary);
+    margin: 0 0 12px;
+}
+.fd-quote-head::before { content: ""; width: 4px; height: 16px; border-radius: 2px; background: var(--admin-primary); align-self: center; }
+.fd-quote-head .fd-quote-date { font-size: var(--admin-font-sm); font-weight: 400; color: var(--admin-text-secondary); }
+.fd-quote-metrics {
+    display: flex; gap: 12px; margin-bottom: var(--admin-gap-md);
+    background: linear-gradient(135deg, #eaf1ff 0%, #f4f8ff 55%, #ffffff 100%);
+    border: 1px solid #d6e4ff;
+    border-radius: 14px;
+    padding: 14px;
+    box-shadow: 0 4px 14px rgba(47, 107, 255, 0.10);
+}
+.fd-quote-metrics .fd-metric-card {
+    margin-bottom: 0;
+    background: #ffffff;
+    border-color: var(--admin-border-lighter);
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.07);
+    padding: 14px 16px 14px 19px;
+    border-radius: 10px;
+}
+.fd-quote-metrics .fd-metric-card::before { width: 4px; border-radius: 4px 0 0 4px; }
+.fd-quote-metrics .mc-label { font-size: var(--admin-font-base); color: var(--admin-text-regular); }
+.fd-quote-metrics .mc-value { font-size: 24px; font-weight: 700; }
+/* 涨跌幅：上红下绿（A 股配色），带方向箭头 */
+.fd-quote-metrics .mc-trend { display: inline-flex; align-items: center; gap: 3px; }
+.fd-quote-metrics .mc-trend .trend-arrow { font-size: 13px; line-height: 1; }
+.mc-trend-up { color: #f5222d; }
+.mc-trend-down { color: #389e0d; }
+.mc-trend-flat { color: var(--admin-text-secondary); }
+.fd-quote-metrics .mc-sub { font-size: 11px; color: var(--admin-text-secondary); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ── 分区标题补充信息 ── */
+.fd-sec-title { display: flex; align-items: baseline; gap: 8px; }
+.fd-sec-title::before { content: ""; width: 3px; height: 14px; border-radius: 2px; background: var(--admin-primary); align-self: center; }
+.fd-sec-meta { font-size: var(--admin-font-sm); font-weight: 400; color: var(--admin-text-secondary); }
+
+/* ── 指标分组网格（flex 同行等高） ── */
+.fd-group-grid { display: flex; flex-wrap: wrap; gap: 12px; }
+.fd-group {
+    flex: 0 0 calc(25% - 9px);
+    min-width: 0;
+    box-sizing: border-box;
+    background: var(--admin-bg-blank);
+    border: 1px solid var(--admin-border-lighter);
+    border-radius: 12px;
+    padding: 12px 14px;
+    overflow: hidden;
+}
+.fd-group-head {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: var(--admin-font-base); font-weight: 700; color: var(--admin-text-primary);
+    margin: 0 -14px 4px;
+    padding: 0 14px 8px;
+    border-bottom: 1px solid var(--admin-border-light);
+}
+.fd-group-head .g-badge { flex: 0 0 auto; }
+.fd-group-head .g-dot { display: inline-block; width: 6px; height: 6px; border-radius: 2px; background: var(--admin-primary); margin-right: 6px; vertical-align: 1px; }
+.fd-ind-row { padding: 5px 0; }
+.fd-ind-row + .fd-ind-row { border-top: 1px dashed var(--admin-border-light); }
+/* 行内 label/value 都可能超长：label 可收缩省略号（flex item 需 min-width:0 省略号才生效），value 过长同样收缩省略号，溢出悬浮 title 看全文 */
+.fd-ind-line { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: var(--admin-font-sm); }
+.fd-ind-line .il-label { flex: 1 1 auto; min-width: 0; color: var(--admin-text-regular); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fd-ind-line .il-val-wrap { flex: 0 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fd-ind-line .il-value { font-weight: 600; color: var(--admin-text-primary); }
+.fd-ind-line .il-unit { font-weight: 400; font-size: 12px; color: var(--admin-text-secondary); margin-left: 2px; }
+.fd-ind-line .il-conf { font-size: 10px; color: var(--admin-text-disabled); margin-left: 4px; }
+
+/* ── 底层资产核心指标卡片（资产头部下方，与顶部指标卡同风格） ── */
+.fd-asset-metrics { display: flex; gap: 12px; margin-bottom: 12px; }
+.fd-asset-metrics .fd-metric-card { background: #f6f8fb; border-color: transparent; box-shadow: none; }
+.fd-asset-metrics .fd-metric-card .mc-value.mc-empty { color: var(--admin-text-disabled); font-weight: 400; }
+
+/* ── 底层资产卡片（flex 同行等高） ── */
+.fd-asset-grid { display: flex; flex-wrap: wrap; gap: 12px; }
+.fd-asset-card {
+    box-sizing: border-box;
+    background: var(--admin-bg-blank);
+    border: 1px solid var(--admin-border-lighter);
+    border-radius: var(--admin-radius-sm);
+    padding: 14px 16px;
+    min-width: 0;
+}
+.fd-asset-card.full { flex: 0 0 100%; }
+.fd-asset-card.half { flex: 0 0 calc(50% - 6px); }
+.fd-asset-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.fd-asset-head .a-name { font-size: var(--admin-font-md); font-weight: 600; color: var(--admin-text-primary); }
+/* 资产头部胶囊：加粗深色字 + 同色浅底 */
+.a-tag {
+    display: inline-flex; align-items: center;
+    font-size: 12px; font-weight: 600; line-height: 1.5;
+    padding: 2px 12px; border-radius: 999px; white-space: nowrap;
+}
+.a-tag-blue { color: #096dd9; background: var(--admin-info-bg); }
+.a-tag-green { color: #389e0d; background: #d9f2c8; }
+.a-tag-gray { color: #595959; background: #f0f0f0; }
+.fd-asset-groups { display: flex; flex-wrap: wrap; gap: 12px; }
+.fd-asset-groups .fd-group { background: #f6f8fb; border-color: transparent; }
+.fd-asset-card.full .fd-asset-groups .fd-group { flex-basis: calc(25% - 9px); }
+.fd-asset-card.half .fd-asset-groups .fd-group { flex-basis: calc(50% - 6px); }
+.fd-empty { padding: 32px; text-align: center; color: var(--admin-text-disabled); }
+
+@media (max-width: 1200px) {
+    .fd-group { flex-basis: calc(50% - 6px); }
+    .fd-asset-card.half { flex-basis: 100%; }
+    .fd-asset-card.half .fd-asset-groups .fd-group { flex-basis: calc(50% - 6px); }
+}
+</style>
+<script>
+/* 本地预览回退：内网 admin-*.css / FontAwesome 加载不到时注入本地回退样式与 CDN 图标，真实环境不受影响 */
+(function () {
+    if (getComputedStyle(document.documentElement).getPropertyValue('--admin-primary')) return;
+    var l = document.createElement('link');
+    l.rel = 'stylesheet';
+    l.href = './fund-assets/local-fallback.css';
+    document.head.appendChild(l);
+    var fa = document.createElement('link');
+    fa.rel = 'stylesheet';
+    fa.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css';
+    document.head.appendChild(fa);
+})();
+</script>
+</head>
+<body style="">
+<div id="app" data-active-menu="reits-overview" data-layout-ready="1" class="admin-app"><aside class="admin-sidebar" id="adminSidebar"><a class="menu-brand" href="https://gateway-open-uat.longfor.com/asset-cloud-uat/open-agent/pages/dashboard.html"><span class="brand-logo"><img src="./fund-assets/logo.png" alt="logo"></span><span class="brand-name">资管云 Agent</span></a><ul class="admin-menu"><li><a class="menu-item" data-menu-id="dashboard" href="https://gateway-open-uat.longfor.com/asset-cloud-uat/open-agent/pages/dashboard.html"><i class="fas fa-house menu-icon"></i><span>首页</span></a></li><li><a class="menu-item" data-menu-id="chat" href="https://gateway-open-uat.longfor.com/asset-cloud-uat/open-agent/pages/chat.html"><i class="fas fa-comments menu-icon"></i><span>AI 智能对话</span></a></li><li><a class="menu-item active" data-menu-id="reits-overview" href="https://gateway-open-uat.longfor.com/asset-cloud-uat/open-agent/pages/reits/funds.html"><i class="fas fa-chart-pie menu-icon"></i><span>市场发行概览</span></a></li><li class=""><a class="menu-item" data-menu-id="reits-mgmt"><i class="fas fa-city menu-icon"></i><span>Reits管理</span><i class="fas fa-chevron-down menu-chevron"></i></a><ul class="admin-submenu"><li><a class="menu-item" data-menu-id="reits-indicator-groups" href="https://gateway-open-uat.longfor.com/asset-cloud-uat/open-agent/pages/reits/indicator-groups.html"><span>指标分组</span></a></li><li><a class="menu-item" data-menu-id="reits-indicator-defs" href="https://gateway-open-uat.longfor.com/asset-cloud-uat/open-agent/pages/reits/indicator-defs.html"><span>指标定义</span></a></li><li><a class="menu-item" data-menu-id="reits-prompt-templates" href="https://gateway-open-uat.longfor.com/asset-cloud-uat/open-agent/pages/reits/prompt-templates.html"><span>提示词模板</span></a></li><li><a class="menu-item" data-menu-id="reits-doc-categories" href="https://gateway-open-uat.longfor.com/asset-cloud-uat/open-agent/pages/reits/doc-categories.html"><span>文档分类</span></a></li><li><a class="menu-item" data-menu-id="reits-raw-documents" href="https://gateway-open-uat.longfor.com/asset-cloud-uat/open-agent/pages/reits/raw-documents.html"><span>原始文档</span></a></li></ul></li><li class=""><a class="menu-item" data-menu-id="ops-data-mgmt"><i class="fas fa-chart-line menu-icon"></i><span>经营数据管理</span><i class="fas fa-chevron-down menu-chevron"></i></a><ul class="admin-submenu"><li><a class="menu-item" data-menu-id="ops-metrics" href="https://gateway-open-uat.longfor.com/asset-cloud-uat/open-agent/pages/ops/ops-metrics.html"><span>指标定义</span></a></li><li><a class="menu-item" data-menu-id="ops-metric-explore" href="https://gateway-open-uat.longfor.com/asset-cloud-uat/open-agent/pages/ops/ops-metric-explore.html"><span>指标查询</span></a></li><li><a class="menu-item" data-menu-id="ops-dimensions" href="https://gateway-open-uat.longfor.com/asset-cloud-uat/open-agent/pages/ops/ops-dimensions.html"><span>维度管理</span></a></li><li><a class="menu-item" data-menu-id="ops-es-meta" href="https://gateway-open-uat.longfor.com/asset-cloud-uat/open-agent/pages/ops/ops-es-meta.html"><span>ES管理</span></a></li><li><a class="menu-item" data-menu-id="ops-sync-monitor" href="https://gateway-open-uat.longfor.com/asset-cloud-uat/open-agent/pages/ops/ops-sync-monitor.html"><span>同步监控</span></a></li></ul></li><li class=""><a class="menu-item" data-menu-id="system-mgmt"><i class="fas fa-gear menu-icon"></i><span>系统管理</span><i class="fas fa-chevron-down menu-chevron"></i></a><ul class="admin-submenu"><li><a class="menu-item" data-menu-id="system-data-dic" href="https://gateway-open-uat.longfor.com/asset-cloud-uat/open-agent/pages/system/data-dic.html"><span>数据字典</span></a></li></ul></li></ul><div class="menu-fold" title="收起菜单"><i class="fas fa-angles-left"></i></div></aside><div class="admin-main"><header class="admin-header"><nav class="admin-breadcrumb"><a href="https://gateway-open-uat.longfor.com/asset-cloud-uat/open-agent/pages/dashboard.html">首页</a><span class="separator">/</span><span class="current">市场发行概览</span></nav><div class="header-user"><span class="user-avatar">A</span><span class="user-name">admin</span><i class="fas fa-chevron-down user-chevron"></i><div class="user-dropdown">  <div class="dropdown-item" id="logoutItem"><i class="fas fa-right-from-bracket"></i>退出登录</div></div></div></header><main class="admin-content"><div class="admin-page">
+    <div class="page-header">
+        <div>
+            <h2 class="page-title" id="fundName">中金唯品会封闭式商业不动产证券投资基金</h2>
+            <div class="page-subtitle" id="fundSubTitle">中金唯品会商业REIT · 508603 · 上交所</div>
+        </div>
+        <div class="fd-header-right">
+            <div class="fd-header-tags">
+                <span id="fundStageTag"><span class="a-tag a-tag-green">已发售</span></span>
+                <span class="a-tag a-tag-blue" id="assetCountTag">资产 6 个</span>
+                <span class="a-tag a-tag-blue" id="indicatorCountTag">基金指标 33 个</span>
+                <button class="btn btn-default" onclick="location.href=&#39;fund-edit.html?id=&#39; + fundId">编辑基金</button>
+                <button class="btn btn-default" onclick="location.href=&#39;funds.html&#39;">返回列表</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 顶部指标卡片（配置项 asset.reits.fund-detail.top-indicators，最多 6 个） -->
+    <div class="fd-top-metrics" id="topMetrics" style=""><div class="fd-metric-card" style="--mc:#10b981"><div class="mc-label" title="预计募集规模">预计募集规模</div><div class="mc-value">69.99<span class="mc-unit">亿元</span></div><div class="mc-confidence">置信度 100%</div></div><div class="fd-metric-card" style="--mc:#14b8a6"><div class="mc-label" title="不动产项目估值">不动产项目估值</div><div class="mc-value">69.99<span class="mc-unit">亿元</span></div><div class="mc-confidence">置信度 100%</div></div><div class="fd-metric-card" style="--mc:#6366f1"><div class="mc-label" title="首年CapRate">首年CapRate</div><div class="mc-value">6.42<span class="mc-unit">%</span></div><div class="mc-confidence">置信度 95%</div></div><div class="fd-metric-card" style="--mc:#f59e0b"><div class="mc-label" title="首年净现金流分派率">首年净现金流分派率</div><div class="mc-value">4.84<span class="mc-unit">%</span></div><div class="mc-confidence">置信度 100%</div></div><div class="fd-metric-card" style="--mc:#06b6d4"><div class="mc-label" title="发售价格">发售价格</div><div class="mc-value">3.848<span class="mc-unit">元/份</span></div><div class="mc-confidence">置信度 100%</div></div><div class="fd-metric-card" style="--mc:#8b5cf6"><div class="mc-label" title="基金存续期限">基金存续期限</div><div class="mc-value">31.0<span class="mc-unit">年</span></div><div class="mc-confidence">置信度 100%</div></div></div>
+
+    <!-- 上市行情指标（已上市基金展示，与顶部发行指标分行） -->
+    <div class="fd-quote-head">上市行情<span class="fd-quote-date">数据日期 2026-09-07 · 上交所</span></div>
+    <div class="fd-quote-metrics" id="quoteMetrics">
+        <div class="fd-metric-card" style="--mc:#1677ff">
+            <div class="mc-label" title="收盘价（日）">收盘价（日）</div>
+            <div class="mc-value">3.912<span class="mc-unit">元/份</span></div>
+            <div class="mc-sub">昨收 3.863 · 今开 3.870</div>
+        </div>
+        <div class="fd-metric-card" style="--mc:#f5222d">
+            <div class="mc-label" title="涨跌幅（日）">涨跌幅（日）</div>
+            <div class="mc-value"><span class="mc-trend mc-trend-up"><i class="trend-arrow">▲</i>+1.26<span class="mc-unit">%</span></span></div>
+            <div class="mc-sub">涨跌额 <span class="mc-trend mc-trend-up">+0.049 元</span></div>
+        </div>
+        <div class="fd-metric-card" style="--mc:#fa8c16">
+            <div class="mc-label" title="市值（日）">市值（日）</div>
+            <div class="mc-value">78.24<span class="mc-unit">亿元</span></div>
+            <div class="mc-sub">总份额 20.0 亿份</div>
+        </div>
+        <div class="fd-metric-card" style="--mc:#722ed1">
+            <div class="mc-label" title="成交额（日）">成交额（日）</div>
+            <div class="mc-value">1.26<span class="mc-unit">亿元</span></div>
+            <div class="mc-sub">成交量 32.3 万手</div>
+        </div>
+        <div class="fd-metric-card" style="--mc:#13c2c2">
+            <div class="mc-label" title="换手率（日）">换手率（日）</div>
+            <div class="mc-value">0.85<span class="mc-unit">%</span></div>
+            <div class="mc-sub">振幅 2.31%</div>
+        </div>
+        <div class="fd-metric-card" style="--mc:#389e0d">
+            <div class="mc-label" title="较发行价涨跌幅">较发行价涨跌幅</div>
+            <div class="mc-value"><span class="mc-trend mc-trend-up"><i class="trend-arrow">▲</i>+1.66<span class="mc-unit">%</span></span></div>
+            <div class="mc-sub">发行价 3.848 元/份</div>
+        </div>
+    </div>
+
+    <!-- 基金级指标 -->
+    <div class="desc-card">
+        <div class="desc-title">
+            <span class="fd-sec-title">基金级指标<span class="fd-sec-meta" id="fundIndMeta">共 33 个 · 已提取 25 个</span></span>
+            <button class="btn btn-primary btn-sm" onclick="location.href=&#39;fund-indicator.html?fundId=&#39; + fundId">指标编辑 / 提取</button>
+        </div>
+        <div class="fd-group-grid" id="fundIndicatorGroups"><div class="fd-group"><div class="fd-group-head"><span>基本面指标</span><span class="a-tag a-tag-blue g-badge">6 有值</span></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="基金存续期限（年）">基金存续期限（年）</span><span class="il-val-wrap" title="31.0"><span class="il-value">31.0</span><span class="il-conf">100%</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="不动产项目业态">不动产项目业态</span><span class="il-val-wrap" title="奥特莱斯"><span class="il-value">奥特莱斯</span><span class="il-conf">100%</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="不动产项目估值（亿元）">不动产项目估值（亿元）</span><span class="il-val-wrap" title="69.99"><span class="il-value">69.99</span><span class="il-conf">100%</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="原始权益人">原始权益人</span><span class="il-val-wrap" title="杉杉商业集团有限公司"><span class="il-value">杉杉商业集团有限公司</span><span class="il-conf">100%</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="基金管理人">基金管理人</span><span class="il-val-wrap" title="中金基金管理有限公司"><span class="il-value">中金基金管理有限公司</span><span class="il-conf">100%</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="是否出表">是否出表</span><span class="il-val-wrap" title="是"><span class="il-value">是</span><span class="il-conf">100%</span></span></div></div></div><div class="fd-group"><div class="fd-group-head"><span>发行指标</span><span class="a-tag a-tag-blue g-badge">11 有值</span></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="预计募集规模（亿元）">预计募集规模（亿元）</span><span class="il-val-wrap" title="69.99"><span class="il-value">69.99</span><span class="il-conf">100%</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="预计基金募集份额（亿份）">预计基金募集份额（亿份）</span><span class="il-val-wrap" title="20.0"><span class="il-value">20.0</span><span class="il-conf">100%</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="询价区间下限（元/份）">询价区间下限（元/份）</span><span class="il-val-wrap" title="3.15"><span class="il-value">3.15</span><span class="il-conf">100%</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="询价区间上限（元/份）">询价区间上限（元/份）</span><span class="il-val-wrap" title="3.849"><span class="il-value">3.849</span><span class="il-conf">100%</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="发售价格（元/份）">发售价格（元/份）</span><span class="il-val-wrap" title="3.848"><span class="il-value">3.848</span><span class="il-conf">100%</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="发行份额（亿份）">发行份额（亿份）</span><span class="il-val-wrap" title="20.0"><span class="il-value">20.0</span><span class="il-conf">100%</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="证监会批复募集份额（亿份）">证监会批复募集份额（亿份）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="份额单价(元/份)（衍生）">份额单价(元/份)（衍生）</span><span class="il-val-wrap" title="3.5"><span class="il-value">3.5</span><span class="il-conf">100%</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="最终基金规模（亿元）（衍生）">最终基金规模（亿元）（衍生）</span><span class="il-val-wrap" title="76.96"><span class="il-value">76.96</span><span class="il-conf">100%</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="最终定价对应资产估值(亿元)">最终定价对应资产估值(亿元)</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="最终定价溢价率（衍生）">最终定价溢价率（衍生）</span><span class="il-val-wrap" title="78.6"><span class="il-value">78.6</span><span class="il-conf">100%</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="原始权益人战配比例（%）">原始权益人战配比例（%）</span><span class="il-val-wrap" title="34.0"><span class="il-value">34.0</span><span class="il-conf">100%</span></span></div><div class="fd-bar"><i style="width:34%"></i></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="战略配售比例（%）">战略配售比例（%）</span><span class="il-val-wrap" title="34.0"><span class="il-value">34.0</span><span class="il-conf">100%</span></span></div><div class="fd-bar"><i style="width:34%"></i></div></div></div><div class="fd-group"><div class="fd-group-head"><span>运营指标</span><span class="a-tag a-tag-blue g-badge">4 有值</span></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="可分配金额比例（%）">可分配金额比例（%）</span><span class="il-val-wrap" title="90.0"><span class="il-value">90.0</span><span class="il-conf">100%</span></span></div><div class="fd-bar"><i style="width:90%"></i></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="管理费率（%）">管理费率（%）</span><span class="il-val-wrap" title="0.2"><span class="il-value">0.2</span><span class="il-conf">100%</span></span></div><div class="fd-bar"><i style="width:0.2%"></i></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="收益分配频率（次）">收益分配频率（次）</span><span class="il-val-wrap" title="1.0"><span class="il-value">1.0</span><span class="il-conf">100%</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="年度托管费率（%）">年度托管费率（%）</span><span class="il-val-wrap" title="0.01"><span class="il-value">0.01</span><span class="il-conf">100%</span></span></div><div class="fd-bar"><i style="width:0.01%"></i></div></div></div><div class="fd-group"><div class="fd-group-head"><span>财务指标</span><span class="a-tag a-tag-blue g-badge">4 有值</span></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="首年CapRate（%）">首年CapRate（%）</span><span class="il-val-wrap" title="6.42"><span class="il-value">6.42</span><span class="il-conf">95%</span></span></div><div class="fd-bar"><i style="width:6.42%"></i></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="第二年CapRate（%）">第二年CapRate（%）</span><span class="il-val-wrap" title="6.42"><span class="il-value">6.42</span><span class="il-conf">90%</span></span></div><div class="fd-bar"><i style="width:6.42%"></i></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="首年净现金流分派率（%）">首年净现金流分派率（%）</span><span class="il-val-wrap" title="4.84"><span class="il-value">4.84</span><span class="il-conf">100%</span></span></div><div class="fd-bar"><i style="width:4.84%"></i></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="第二年净现金流分派率（%）">第二年净现金流分派率（%）</span><span class="il-val-wrap" title="5.12"><span class="il-value">5.12</span><span class="il-conf">100%</span></span></div><div class="fd-bar"><i style="width:5.12%"></i></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="反算首年CapRate">反算首年CapRate</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="资产加权CapRate">资产加权CapRate</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="基金整体CapRate（计算）">基金整体CapRate（计算）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="基金整体CapRate含CapEx（计算）">基金整体CapRate含CapEx（计算）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div></div><div class="fd-group"><div class="fd-group-head"><span>其他指标</span><span class="a-tag a-tag-blue g-badge">0 有值</span></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="基金首年noi（亿元）">基金首年noi（亿元）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="基金第二年noi（亿元）">基金第二年noi（亿元）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div></div></div>
+    </div>
+
+    <!-- 底层资产 -->
+    <div class="desc-card">
+        <div class="desc-title">
+            <span class="fd-sec-title">底层资产<span class="fd-sec-meta" id="assetMeta">共 6 个资产</span></span>
+            <button class="btn btn-primary btn-sm" onclick="discoverAssets()">重新识别资产</button>
+        </div>
+        <div class="fd-asset-grid" id="assetCards"><div class="fd-asset-card half"><div class="fd-asset-head"><span class="a-name">郑州杉杉奥特莱斯项目</span><span class="tag tag-orange">疑似退出</span><span class="a-tag a-tag-blue">郑州市</span><span class="a-tag a-tag-green">奥特莱斯</span><span class="a-tag a-tag-gray">字段 21 个</span></div><div class="fd-asset-metrics"><div class="fd-metric-card" style="--mc:#14b8a6"><div class="mc-label" title="资产估值">资产估值</div><div class="mc-value">43.09<span class="mc-unit">亿元</span></div><div class="mc-confidence">置信度 100%</div></div><div class="fd-metric-card" style="--mc:#6366f1"><div class="mc-label" title="折现率">折现率</div><div class="mc-value">7.25<span class="mc-unit">%</span></div><div class="mc-confidence">置信度 100%</div></div><div class="fd-metric-card" style="--mc:#f59e0b"><div class="mc-label" title="可供分配金额">可供分配金额</div><div class="mc-value mc-empty">—</div><div class="mc-confidence">暂无数据</div></div></div><div class="fd-asset-groups"><div class="fd-group"><div class="fd-group-head"><span><i class="g-dot"></i>资产概况</span></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="建筑面积">建筑面积</span><span class="il-val-wrap" title="111962.8平方米"><span class="il-value">111962.8</span><span class="il-unit">平方米</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="可租赁面积">可租赁面积</span><span class="il-val-wrap" title="59393.85平方米"><span class="il-value">59393.85</span><span class="il-unit">平方米</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="资产估值">资产估值</span><span class="il-val-wrap" title="43.09亿元"><span class="il-value">43.09</span><span class="il-unit">亿元</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="细分业态类型">细分业态类型</span><span class="il-val-wrap" title="奥特莱斯"><span class="il-value">奥特莱斯</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="土地剩余年限">土地剩余年限</span><span class="il-val-wrap" title="30.68年"><span class="il-value">30.68</span><span class="il-unit">年</span></span></div></div></div><div class="fd-group"><div class="fd-group-head"><span><i class="g-dot"></i>估值参数</span></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="caprate(首年资本化率）">caprate(首年资本化率）</span><span class="il-val-wrap" title="6.42%"><span class="il-value">6.42</span><span class="il-unit">%</span></span></div><div class="fd-bar"><i style="width:6.42%"></i></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="Caprate2（第二年资本化率）">Caprate2（第二年资本化率）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="Caprate（加回资本性支出）">Caprate（加回资本性支出）</span><span class="il-val-wrap" title="6.42%"><span class="il-value">6.42</span><span class="il-unit">%</span></span></div><div class="fd-bar"><i style="width:6.42%"></i></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="Caprate2（第二年加回资本性支出）">Caprate2（第二年加回资本性支出）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="折现率">折现率</span><span class="il-val-wrap" title="7.25%"><span class="il-value">7.25</span><span class="il-unit">%</span></span></div><div class="fd-bar"><i style="width:7.25%"></i></div></div></div><div class="fd-group"><div class="fd-group-head"><span><i class="g-dot"></i>经营表现</span></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="NOI（最近年度实际值）">NOI（最近年度实际值）</span><span class="il-val-wrap" title="2.662983亿元"><span class="il-value">2.662983</span><span class="il-unit">亿元</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="NOI Margin（最近年度实际值）">NOI Margin（最近年度实际值）</span><span class="il-val-wrap" title="77.89%"><span class="il-value">77.89</span><span class="il-unit">%</span></span></div><div class="fd-bar"><i style="width:77.89%"></i></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="出租率（时点/年末）">出租率（时点/年末）</span><span class="il-val-wrap" title="99.92%"><span class="il-value">99.92</span><span class="il-unit">%</span></span></div><div class="fd-bar"><i style="width:99.92%"></i></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="平均租金单价">平均租金单价</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="续租率">续租率</span><span class="il-val-wrap" title="83.59%"><span class="il-value">83.59</span><span class="il-unit">%</span></span></div><div class="fd-bar"><i style="width:83.59%"></i></div></div></div><div class="fd-group"><div class="fd-group-head"><span><i class="g-dot"></i>租户与租约指标</span></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="前十大租户占比">前十大租户占比</span><span class="il-val-wrap" title="21.76%"><span class="il-value">21.76</span><span class="il-unit">%</span></span></div><div class="fd-bar"><i style="width:21.76%"></i></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="最大单一租户占比">最大单一租户占比</span><span class="il-val-wrap" title="2.88%"><span class="il-value">2.88</span><span class="il-unit">%</span></span></div><div class="fd-bar"><i style="width:2.88%"></i></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="WALE（加权平均剩余租期）">WALE（加权平均剩余租期）</span><span class="il-val-wrap" title="1.18年"><span class="il-value">1.18</span><span class="il-unit">年</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="到期结构（1年内）">到期结构（1年内）</span><span class="il-val-wrap" title="66.61%"><span class="il-value">66.61</span><span class="il-unit">%</span></span></div><div class="fd-bar"><i style="width:66.61%"></i></div></div></div><div class="fd-group"><div class="fd-group-head"><span><i class="g-dot"></i>预测指标</span></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="NOI（首年预测）">NOI（首年预测）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="NOI Margin（首年预测）">NOI Margin（首年预测）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div></div></div></div><div class="fd-asset-card half"><div class="fd-asset-head"><span class="a-name">哈尔滨杉杉奥特莱斯项目</span><span class="tag tag-orange">疑似退出</span><span class="a-tag a-tag-blue">哈尔滨市</span><span class="a-tag a-tag-green">奥特莱斯</span><span class="a-tag a-tag-gray">字段 21 个</span></div><div class="fd-asset-metrics"><div class="fd-metric-card" style="--mc:#14b8a6"><div class="mc-label" title="资产估值">资产估值</div><div class="mc-value">43.09<span class="mc-unit">亿元</span></div><div class="mc-confidence">置信度 100%</div></div><div class="fd-metric-card" style="--mc:#6366f1"><div class="mc-label" title="折现率">折现率</div><div class="mc-value">7.25<span class="mc-unit">%</span></div><div class="mc-confidence">置信度 100%</div></div><div class="fd-metric-card" style="--mc:#f59e0b"><div class="mc-label" title="可供分配金额">可供分配金额</div><div class="mc-value mc-empty">—</div><div class="mc-confidence">暂无数据</div></div></div><div class="fd-asset-groups"><div class="fd-group"><div class="fd-group-head"><span><i class="g-dot"></i>资产概况</span></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="建筑面积">建筑面积</span><span class="il-val-wrap" title="111962.8平方米"><span class="il-value">111962.8</span><span class="il-unit">平方米</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="可租赁面积">可租赁面积</span><span class="il-val-wrap" title="59393.85平方米"><span class="il-value">59393.85</span><span class="il-unit">平方米</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="资产估值">资产估值</span><span class="il-val-wrap" title="43.09亿元"><span class="il-value">43.09</span><span class="il-unit">亿元</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="细分业态类型">细分业态类型</span><span class="il-val-wrap" title="奥特莱斯"><span class="il-value">奥特莱斯</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="土地剩余年限">土地剩余年限</span><span class="il-val-wrap" title="30.68年"><span class="il-value">30.68</span><span class="il-unit">年</span></span></div></div></div><div class="fd-group"><div class="fd-group-head"><span><i class="g-dot"></i>估值参数</span></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="caprate(首年资本化率）">caprate(首年资本化率）</span><span class="il-val-wrap" title="6.42%"><span class="il-value">6.42</span><span class="il-unit">%</span></span></div><div class="fd-bar"><i style="width:6.42%"></i></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="Caprate2（第二年资本化率）">Caprate2（第二年资本化率）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="Caprate（加回资本性支出）">Caprate（加回资本性支出）</span><span class="il-val-wrap" title="6.42%"><span class="il-value">6.42</span><span class="il-unit">%</span></span></div><div class="fd-bar"><i style="width:6.42%"></i></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="Caprate2（第二年加回资本性支出）">Caprate2（第二年加回资本性支出）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="折现率">折现率</span><span class="il-val-wrap" title="7.25%"><span class="il-value">7.25</span><span class="il-unit">%</span></span></div><div class="fd-bar"><i style="width:7.25%"></i></div></div></div><div class="fd-group"><div class="fd-group-head"><span><i class="g-dot"></i>经营表现</span></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="NOI（最近年度实际值）">NOI（最近年度实际值）</span><span class="il-val-wrap" title="2.662983亿元"><span class="il-value">2.662983</span><span class="il-unit">亿元</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="NOI Margin（最近年度实际值）">NOI Margin（最近年度实际值）</span><span class="il-val-wrap" title="73.4%"><span class="il-value">73.4</span><span class="il-unit">%</span></span></div><div class="fd-bar"><i style="width:73.4%"></i></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="出租率（时点/年末）">出租率（时点/年末）</span><span class="il-val-wrap" title="99.92%"><span class="il-value">99.92</span><span class="il-unit">%</span></span></div><div class="fd-bar"><i style="width:99.92%"></i></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="平均租金单价">平均租金单价</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="续租率">续租率</span><span class="il-val-wrap" title="83.59%"><span class="il-value">83.59</span><span class="il-unit">%</span></span></div><div class="fd-bar"><i style="width:83.59%"></i></div></div></div><div class="fd-group"><div class="fd-group-head"><span><i class="g-dot"></i>租户与租约指标</span></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="前十大租户占比">前十大租户占比</span><span class="il-val-wrap" title="21.76%"><span class="il-value">21.76</span><span class="il-unit">%</span></span></div><div class="fd-bar"><i style="width:21.76%"></i></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="最大单一租户占比">最大单一租户占比</span><span class="il-val-wrap" title="2.88%"><span class="il-value">2.88</span><span class="il-unit">%</span></span></div><div class="fd-bar"><i style="width:2.88%"></i></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="WALE（加权平均剩余租期）">WALE（加权平均剩余租期）</span><span class="il-val-wrap" title="1.18年"><span class="il-value">1.18</span><span class="il-unit">年</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="到期结构（1年内）">到期结构（1年内）</span><span class="il-val-wrap" title="39.42%"><span class="il-value">39.42</span><span class="il-unit">%</span></span></div><div class="fd-bar"><i style="width:39.42%"></i></div></div></div><div class="fd-group"><div class="fd-group-head"><span><i class="g-dot"></i>预测指标</span></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="NOI（首年预测）">NOI（首年预测）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="NOI Margin（首年预测）">NOI Margin（首年预测）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div></div></div></div><div class="fd-asset-card half"><div class="fd-asset-head"><span class="a-name">郑州项目</span><span class="tag tag-orange">疑似退出</span><span class="a-tag a-tag-blue">郑州</span><span class="a-tag a-tag-green">商业</span><span class="a-tag a-tag-gray">字段 21 个</span></div><div class="fd-asset-metrics"><div class="fd-metric-card" style="--mc:#14b8a6"><div class="mc-label" title="资产估值">资产估值</div><div class="mc-value mc-empty">—</div><div class="mc-confidence">暂无数据</div></div><div class="fd-metric-card" style="--mc:#6366f1"><div class="mc-label" title="折现率">折现率</div><div class="mc-value mc-empty">—</div><div class="mc-confidence">暂无数据</div></div><div class="fd-metric-card" style="--mc:#f59e0b"><div class="mc-label" title="可供分配金额">可供分配金额</div><div class="mc-value mc-empty">—</div><div class="mc-confidence">暂无数据</div></div></div><div class="fd-asset-groups"><div class="fd-group"><div class="fd-group-head"><span><i class="g-dot"></i>资产概况</span></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="建筑面积">建筑面积</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="可租赁面积">可租赁面积</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="资产估值">资产估值</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="细分业态类型">细分业态类型</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="土地剩余年限">土地剩余年限</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div></div><div class="fd-group"><div class="fd-group-head"><span><i class="g-dot"></i>估值参数</span></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="caprate(首年资本化率）">caprate(首年资本化率）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="Caprate2（第二年资本化率）">Caprate2（第二年资本化率）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="Caprate（加回资本性支出）">Caprate（加回资本性支出）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="Caprate2（第二年加回资本性支出）">Caprate2（第二年加回资本性支出）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="折现率">折现率</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div></div><div class="fd-group"><div class="fd-group-head"><span><i class="g-dot"></i>经营表现</span></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="NOI（最近年度实际值）">NOI（最近年度实际值）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="NOI Margin（最近年度实际值）">NOI Margin（最近年度实际值）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="出租率（时点/年末）">出租率（时点/年末）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="平均租金单价">平均租金单价</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="续租率">续租率</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div></div><div class="fd-group"><div class="fd-group-head"><span><i class="g-dot"></i>租户与租约指标</span></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="前十大租户占比">前十大租户占比</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="最大单一租户占比">最大单一租户占比</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="WALE（加权平均剩余租期）">WALE（加权平均剩余租期）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="到期结构（1年内）">到期结构（1年内）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div></div><div class="fd-group"><div class="fd-group-head"><span><i class="g-dot"></i>预测指标</span></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="NOI（首年预测）">NOI（首年预测）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="NOI Margin（首年预测）">NOI Margin（首年预测）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div></div></div></div><div class="fd-asset-card half"><div class="fd-asset-head"><span class="a-name">哈尔滨项目</span><span class="tag tag-orange">疑似退出</span><span class="a-tag a-tag-blue">哈尔滨</span><span class="a-tag a-tag-green">商业</span><span class="a-tag a-tag-gray">字段 21 个</span></div><div class="fd-asset-metrics"><div class="fd-metric-card" style="--mc:#14b8a6"><div class="mc-label" title="资产估值">资产估值</div><div class="mc-value mc-empty">—</div><div class="mc-confidence">暂无数据</div></div><div class="fd-metric-card" style="--mc:#6366f1"><div class="mc-label" title="折现率">折现率</div><div class="mc-value mc-empty">—</div><div class="mc-confidence">暂无数据</div></div><div class="fd-metric-card" style="--mc:#f59e0b"><div class="mc-label" title="可供分配金额">可供分配金额</div><div class="mc-value mc-empty">—</div><div class="mc-confidence">暂无数据</div></div></div><div class="fd-asset-groups"><div class="fd-group"><div class="fd-group-head"><span><i class="g-dot"></i>资产概况</span></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="建筑面积">建筑面积</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="可租赁面积">可租赁面积</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="资产估值">资产估值</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="细分业态类型">细分业态类型</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="土地剩余年限">土地剩余年限</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div></div><div class="fd-group"><div class="fd-group-head"><span><i class="g-dot"></i>估值参数</span></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="caprate(首年资本化率）">caprate(首年资本化率）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="Caprate2（第二年资本化率）">Caprate2（第二年资本化率）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="Caprate（加回资本性支出）">Caprate（加回资本性支出）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="Caprate2（第二年加回资本性支出）">Caprate2（第二年加回资本性支出）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="折现率">折现率</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div></div><div class="fd-group"><div class="fd-group-head"><span><i class="g-dot"></i>经营表现</span></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="NOI（最近年度实际值）">NOI（最近年度实际值）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="NOI Margin（最近年度实际值）">NOI Margin（最近年度实际值）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="出租率（时点/年末）">出租率（时点/年末）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="平均租金单价">平均租金单价</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="续租率">续租率</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div></div><div class="fd-group"><div class="fd-group-head"><span><i class="g-dot"></i>租户与租约指标</span></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="前十大租户占比">前十大租户占比</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="最大单一租户占比">最大单一租户占比</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="WALE（加权平均剩余租期）">WALE（加权平均剩余租期）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="到期结构（1年内）">到期结构（1年内）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div></div><div class="fd-group"><div class="fd-group-head"><span><i class="g-dot"></i>预测指标</span></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="NOI（首年预测）">NOI（首年预测）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="NOI Margin（首年预测）">NOI Margin（首年预测）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div></div></div></div><div class="fd-asset-card half"><div class="fd-asset-head"><span class="a-name">郑州杉杉奥特莱斯</span><span class="tag tag-orange">疑似退出</span><span class="a-tag a-tag-blue">郑州</span><span class="a-tag a-tag-green">商业</span><span class="a-tag a-tag-gray">字段 21 个</span></div><div class="fd-asset-metrics"><div class="fd-metric-card" style="--mc:#14b8a6"><div class="mc-label" title="资产估值">资产估值</div><div class="mc-value mc-empty">—</div><div class="mc-confidence">暂无数据</div></div><div class="fd-metric-card" style="--mc:#6366f1"><div class="mc-label" title="折现率">折现率</div><div class="mc-value mc-empty">—</div><div class="mc-confidence">暂无数据</div></div><div class="fd-metric-card" style="--mc:#f59e0b"><div class="mc-label" title="可供分配金额">可供分配金额</div><div class="mc-value mc-empty">—</div><div class="mc-confidence">暂无数据</div></div></div><div class="fd-asset-groups"><div class="fd-group"><div class="fd-group-head"><span><i class="g-dot"></i>资产概况</span></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="建筑面积">建筑面积</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="可租赁面积">可租赁面积</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="资产估值">资产估值</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="细分业态类型">细分业态类型</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="土地剩余年限">土地剩余年限</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div></div><div class="fd-group"><div class="fd-group-head"><span><i class="g-dot"></i>估值参数</span></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="caprate(首年资本化率）">caprate(首年资本化率）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="Caprate2（第二年资本化率）">Caprate2（第二年资本化率）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="Caprate（加回资本性支出）">Caprate（加回资本性支出）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="Caprate2（第二年加回资本性支出）">Caprate2（第二年加回资本性支出）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="折现率">折现率</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div></div><div class="fd-group"><div class="fd-group-head"><span><i class="g-dot"></i>经营表现</span></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="NOI（最近年度实际值）">NOI（最近年度实际值）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="NOI Margin（最近年度实际值）">NOI Margin（最近年度实际值）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="出租率（时点/年末）">出租率（时点/年末）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="平均租金单价">平均租金单价</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="续租率">续租率</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div></div><div class="fd-group"><div class="fd-group-head"><span><i class="g-dot"></i>租户与租约指标</span></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="前十大租户占比">前十大租户占比</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="最大单一租户占比">最大单一租户占比</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="WALE（加权平均剩余租期）">WALE（加权平均剩余租期）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="到期结构（1年内）">到期结构（1年内）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div></div><div class="fd-group"><div class="fd-group-head"><span><i class="g-dot"></i>预测指标</span></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="NOI（首年预测）">NOI（首年预测）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="NOI Margin（首年预测）">NOI Margin（首年预测）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div></div></div></div><div class="fd-asset-card half"><div class="fd-asset-head"><span class="a-name">哈尔滨杉杉奥特莱斯</span><span class="tag tag-orange">疑似退出</span><span class="a-tag a-tag-blue">哈尔滨</span><span class="a-tag a-tag-green">商业</span><span class="a-tag a-tag-gray">字段 21 个</span></div><div class="fd-asset-metrics"><div class="fd-metric-card" style="--mc:#14b8a6"><div class="mc-label" title="资产估值">资产估值</div><div class="mc-value mc-empty">—</div><div class="mc-confidence">暂无数据</div></div><div class="fd-metric-card" style="--mc:#6366f1"><div class="mc-label" title="折现率">折现率</div><div class="mc-value mc-empty">—</div><div class="mc-confidence">暂无数据</div></div><div class="fd-metric-card" style="--mc:#f59e0b"><div class="mc-label" title="可供分配金额">可供分配金额</div><div class="mc-value mc-empty">—</div><div class="mc-confidence">暂无数据</div></div></div><div class="fd-asset-groups"><div class="fd-group"><div class="fd-group-head"><span><i class="g-dot"></i>资产概况</span></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="建筑面积">建筑面积</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="可租赁面积">可租赁面积</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="资产估值">资产估值</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="细分业态类型">细分业态类型</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="土地剩余年限">土地剩余年限</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div></div><div class="fd-group"><div class="fd-group-head"><span><i class="g-dot"></i>估值参数</span></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="caprate(首年资本化率）">caprate(首年资本化率）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="Caprate2（第二年资本化率）">Caprate2（第二年资本化率）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="Caprate（加回资本性支出）">Caprate（加回资本性支出）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="Caprate2（第二年加回资本性支出）">Caprate2（第二年加回资本性支出）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="折现率">折现率</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div></div><div class="fd-group"><div class="fd-group-head"><span><i class="g-dot"></i>经营表现</span></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="NOI（最近年度实际值）">NOI（最近年度实际值）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="NOI Margin（最近年度实际值）">NOI Margin（最近年度实际值）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="出租率（时点/年末）">出租率（时点/年末）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="平均租金单价">平均租金单价</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="续租率">续租率</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div></div><div class="fd-group"><div class="fd-group-head"><span><i class="g-dot"></i>租户与租约指标</span></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="前十大租户占比">前十大租户占比</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="最大单一租户占比">最大单一租户占比</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="WALE（加权平均剩余租期）">WALE（加权平均剩余租期）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="到期结构（1年内）">到期结构（1年内）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div></div><div class="fd-group"><div class="fd-group-head"><span><i class="g-dot"></i>预测指标</span></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="NOI（首年预测）">NOI（首年预测）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div><div class="fd-ind-row"><div class="fd-ind-line"><span class="il-label" title="NOI Margin（首年预测）">NOI Margin（首年预测）</span><span class="il-val-wrap"><span class="il-value" style="color:var(--admin-text-disabled);font-weight:400">—</span></span></div></div></div></div></div></div>
+    </div>
+
+    <!-- 基金文档 -->
+    <div class="desc-card">
+        <div class="desc-title">
+            <span class="fd-sec-title">基金文档<span class="fd-sec-meta">共 <span id="docCount">28</span> 份</span></span>
+            <span id="docTypeStats" style="display:flex;gap:6px;flex-wrap:wrap"><span class="tag tag-blue" style="cursor:pointer;user-select:none" onclick="toggleDocTypeFilter(&#39;FUND_SUMMARY&#39;)" title="点击筛选，再次点击取消">基金产品资料概要 2 份</span><span class="tag tag-blue" style="cursor:pointer;user-select:none" onclick="toggleDocTypeFilter(&#39;INQUIRY_NOTICE&#39;)" title="点击筛选，再次点击取消">询价公告 1 份</span><span class="tag tag-blue" style="cursor:pointer;user-select:none" onclick="toggleDocTypeFilter(&#39;LISTING_NOTICE&#39;)" title="点击筛选，再次点击取消">上市交易公告书 1 份</span><span class="tag tag-blue" style="cursor:pointer;user-select:none" onclick="toggleDocTypeFilter(&#39;OFFERING_NOTICE&#39;)" title="点击筛选，再次点击取消">发售公告 1 份</span><span class="tag tag-blue" style="cursor:pointer;user-select:none" onclick="toggleDocTypeFilter(&#39;OTHER&#39;)" title="点击筛选，再次点击取消">其他 18 份</span><span class="tag tag-blue" style="cursor:pointer;user-select:none" onclick="toggleDocTypeFilter(&#39;PROSPECTUS&#39;)" title="点击筛选，再次点击取消">招募说明书 5 份</span></span>
+        </div>
+        <div class="table-card">
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th style="width:50%">文档标题</th>
+                        <th style="width:90px">文档类型</th>
+                        <th style="width:90px;white-space:nowrap">发布日期</th>
+                        <th style="width:60px">版本</th>
+                        <th style="width:90px">状态</th>
+                        <th style="width:200px">更新时间</th>
+                        <th style="width:80px">操作</th>
+                    </tr>
+                    </thead>
+                    <tbody id="docBody"><tr><td style="max-width:0"><a class="doc-title-link" href="https://static.sse.com.cn/bond/bridge2/disclosure/announcement/c/202604/54b56d_20260415_9AK9.pdf" target="_blank" rel="noopener" title="1-2 中金唯品会封闭式商业不动产证券投资基金基金合同（草案）.pdf" style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">1-2 中金唯品会封闭式商业不动产证券投资基金基金合同（草案）.pdf</a></td><td><span class="tag tag-gray">其他</span></td><td style="white-space:nowrap">2026-04-15</td><td>v9</td><td><span class="tag tag-green">已解析</span></td><td>2026-08-31 14:49:52</td><td style="white-space:nowrap"><button class="link-btn" onclick="openReclassifyModal(242)">重新分类</button></td></tr><tr><td style="max-width:0"><a class="doc-title-link" href="https://static.sse.com.cn/bond/bridge2/disclosure/announcement/c/202604/54b56d_20260415_99CD.pdf" target="_blank" rel="noopener" title="1-3 中金唯品会封闭式商业不动产证券投资基金托管协议（草案）.pdf" style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">1-3 中金唯品会封闭式商业不动产证券投资基金托管协议（草案）.pdf</a></td><td><span class="tag tag-gray">其他</span></td><td style="white-space:nowrap">2026-04-15</td><td>v12</td><td><span class="tag tag-green">已解析</span></td><td>2026-08-31 14:49:52</td><td style="white-space:nowrap"><button class="link-btn" onclick="openReclassifyModal(245)">重新分类</button></td></tr><tr><td style="max-width:0"><a class="doc-title-link" href="https://static.sse.com.cn/bond/bridge2/disclosure/announcement/c/202601/54b56d_20260129_WGM1.pdf" target="_blank" rel="noopener" title="1-3 中金唯品会封闭式商业不动产证券投资基金托管协议（草案）.pdf" style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">1-3 中金唯品会封闭式商业不动产证券投资基金托管协议（草案）.pdf</a></td><td><span class="tag tag-gray">其他</span></td><td style="white-space:nowrap">2026-01-29</td><td>v10</td><td><span class="tag tag-green">已解析</span></td><td>2026-08-31 14:49:52</td><td style="white-space:nowrap"><button class="link-btn" onclick="openReclassifyModal(243)">重新分类</button></td></tr><tr><td style="max-width:0"><a class="doc-title-link" href="https://static.sse.com.cn/bond/bridge2/disclosure/announcement/c/202604/54b56d_20260407_M3HB.pdf" target="_blank" rel="noopener" title="1-2 中金唯品会封闭式商业不动产证券投资基金基金合同（草案）.pdf" style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">1-2 中金唯品会封闭式商业不动产证券投资基金基金合同（草案）.pdf</a></td><td><span class="tag tag-gray">其他</span></td><td style="white-space:nowrap">2026-04-07</td><td>v8</td><td><span class="tag tag-green">已解析</span></td><td>2026-08-31 14:49:52</td><td style="white-space:nowrap"><button class="link-btn" onclick="openReclassifyModal(241)">重新分类</button></td></tr><tr><td style="max-width:0"><a class="doc-title-link" href="https://static.sse.com.cn/bond/bridge2/disclosure/announcement/c/202601/54b56d_20260129_WVJS.pdf" target="_blank" rel="noopener" title="1-5 律师事务所对基金出具的法律意见书.pdf" style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">1-5 律师事务所对基金出具的法律意见书.pdf</a></td><td><span class="tag tag-gray">其他</span></td><td style="white-space:nowrap">2026-01-29</td><td>v13</td><td><span class="tag tag-green">已解析</span></td><td>2026-08-31 14:49:52</td><td style="white-space:nowrap"><button class="link-btn" onclick="openReclassifyModal(250)">重新分类</button></td></tr><tr><td style="max-width:0"><a class="doc-title-link" href="https://static.sse.com.cn/bond/bridge2/disclosure/announcement/c/202604/54b56d_20260403_FK4R.pdf" target="_blank" rel="noopener" title="1-3 中金唯品会封闭式商业不动产证券投资基金托管协议（草案）.pdf" style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">1-3 中金唯品会封闭式商业不动产证券投资基金托管协议（草案）.pdf</a></td><td><span class="tag tag-gray">其他</span></td><td style="white-space:nowrap">2026-04-03</td><td>v11</td><td><span class="tag tag-green">已解析</span></td><td>2026-08-31 14:49:52</td><td style="white-space:nowrap"><button class="link-btn" onclick="openReclassifyModal(244)">重新分类</button></td></tr><tr><td style="max-width:0"><a class="doc-title-link" href="https://static.sse.com.cn/bond/bridge2/disclosure/announcement/c/202601/54b56d_20260129_5088.pdf" target="_blank" rel="noopener" title="1-2 中金唯品会封闭式商业不动产证券投资基金基金合同（草案）.pdf" style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">1-2 中金唯品会封闭式商业不动产证券投资基金基金合同（草案）.pdf</a></td><td><span class="tag tag-gray">其他</span></td><td style="white-space:nowrap">2026-01-29</td><td>v7</td><td><span class="tag tag-green">已解析</span></td><td>2026-08-31 14:49:52</td><td style="white-space:nowrap"><button class="link-btn" onclick="openReclassifyModal(240)">重新分类</button></td></tr><tr><td style="max-width:0"><a class="doc-title-link" href="https://static.sse.com.cn/bond/bridge2/disclosure/announcement/c/202604/54b56d_20260403_VHAT.pdf" target="_blank" rel="noopener" title="1-5 律师事务所对基金出具的法律意见书.pdf" style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">1-5 律师事务所对基金出具的法律意见书.pdf</a></td><td><span class="tag tag-gray">其他</span></td><td style="white-space:nowrap">2026-04-03</td><td>v14</td><td><span class="tag tag-green">已解析</span></td><td>2026-08-31 14:49:52</td><td style="white-space:nowrap"><button class="link-btn" onclick="openReclassifyModal(251)">重新分类</button></td></tr><tr><td style="max-width:0"><a class="doc-title-link" href="https://static.sse.com.cn/bond/bridge2/disclosure/announcement/c/202604/54b56d_20260415_GEX8.pdf" target="_blank" rel="noopener" title="1-5 律师事务所对基金出具的法律意见书.pdf" style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">1-5 律师事务所对基金出具的法律意见书.pdf</a></td><td><span class="tag tag-gray">其他</span></td><td style="white-space:nowrap">2026-04-15</td><td>v15</td><td><span class="tag tag-green">已解析</span></td><td>2026-08-31 14:49:52</td><td style="white-space:nowrap"><button class="link-btn" onclick="openReclassifyModal(252)">重新分类</button></td></tr><tr><td style="max-width:0"><a class="doc-title-link" href="https://static.sse.com.cn/bond/bridge2/disclosure/announcement/c/202604/54b56d_20260424_68K0.pdf" target="_blank" rel="noopener" title="1-5 律师事务所对基金出具的法律意见书.pdf" style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">1-5 律师事务所对基金出具的法律意见书.pdf</a></td><td><span class="tag tag-gray">其他</span></td><td style="white-space:nowrap">2026-04-24</td><td>v16</td><td><span class="tag tag-green">已解析</span></td><td>2026-08-31 14:49:52</td><td style="white-space:nowrap"><button class="link-btn" onclick="openReclassifyModal(253)">重新分类</button></td></tr></tbody>
+                </table>
+            </div>
+        </div>
+        <div id="docPager" class="pagination-bar"><div class="pagination"><span class="total-info">共 28 条</span><span class="page-sizes"><select class="select" onchange="Components._pagerSizeChange(this)"><option value="5">5条/页</option><option value="10" selected="">10条/页</option><option value="20">20条/页</option></select></span><button class="page-btn nav" onclick="Components._pagerGo(this, 0)" disabled=""><i class="fas fa-chevron-left"></i></button><button class="page-number active" onclick="Components._pagerGo(this, 1)">1</button><button class="page-number" onclick="Components._pagerGo(this, 2)">2</button><button class="page-number" onclick="Components._pagerGo(this, 3)">3</button><button class="page-btn nav" onclick="Components._pagerGo(this, 2)"><i class="fas fa-chevron-right"></i></button><span class="page-jumper">前往 <input type="text" value="1" onkeydown="if(event.key===&#39;Enter&#39;)Components._pagerGo(this, parseInt(this.value)||1)"> 页</span></div></div>
+    </div>
+</div></main></div></div>
+
+<script src="./fund-assets/admin-core.js"></script>
+<script src="./fund-assets/admin-utils.js"></script>
+<script src="./fund-assets/admin-components.js"></script>
+<script src="./fund-assets/admin-api.js"></script>
+<script src="./fund-assets/admin-layout.js"></script>
+<script src="./fund-assets/reits2.js"></script>
+<script src="./fund-assets/pdf.min.js"></script>
+<script>
+App.init();
+
+// 配置 pdf.js worker（本地文件，与 pdf.min.js 同版本配套）
+if (typeof pdfjsLib !== 'undefined') {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'assets/pdfjs/pdf.worker.min.js';
+}
+
+var fundId = Number(R2.query('fundId'));
+var overview = null;
+var activeEntityIndex = 0;
+var pollTimer = null;
+var currentRunId = null;
+
+var indicatorList = [];
+var currentPage = 1;
+var pageSize = 10;
+
+if (!fundId) R2.toast('缺少基金 ID 参数', 'error');
+
+// ── 数据加载 ──
+async function loadOverview() {
+    overview = await R2.get('/api/reits/funds/' + fundId + '/indicators');
+    document.getElementById('fundName').textContent = overview.fund.fundName || '基金指标编辑';
+    renderTabs();
+    renderIndicators();
+}
+
+function renderTabs() {
+    var html = '';
+    overview.entities.forEach(function (entity, idx) {
+        var label = entity.entityType === 'FUND' ? '基金级指标' : entity.entityName;
+        html += '<div class="tab-item' + (idx === activeEntityIndex ? ' active' : '') + '" onclick="switchTab(' + idx + ')">' +
+            R2.esc(label) + '（' + entity.indicators.length + '）</div>';
+    });
+    document.getElementById('entityTabs').innerHTML = html;
+}
+
+function switchTab(idx) {
+    activeEntityIndex = idx;
+    currentPage = 1;
+    document.getElementById('checkAll').checked = false;
+    renderTabs();
+    renderIndicators();
+}
+
+function displayValue(item) {
+    if (item.valueText) return item.valueText + (item.valueUnitName ? ' ' + item.valueUnitName : '');
+    if (item.valueJson) return item.valueJson.length > 100 ? item.valueJson.substring(0, 100) + '…' : item.valueJson;
+    return null;
+}
+
+// ── 来源文档：文档标题，悬停显示完整标题与版本 ──
+function renderSourceDoc(item) {
+    if (!item.docTitle) return '<span style="color:var(--text-disabled)">—</span>';
+    var tip = item.docTitle + (item.docVersionNo != null ? '（v' + item.docVersionNo + '）' : '');
+    return '<span class="doc-name" data-tip="' + R2.esc(tip) + '">' + R2.esc(item.docTitle) + '</span>';
+}
+
+// ── 证据页：提取页（实际读出值的页）标蓝优先展示，其余召回页标灰 ──
+function parsePageList(str) {
+    if (!str) return [];
+    return String(str).split(',').map(function (p) { return Number(p.trim()); }).filter(function (p) { return p > 0; });
+}
+
+function renderEvidencePages(item) {
+    if (!item.docId) {
+        return '<span style="color:var(--text-disabled)">—</span>';
+    }
+    var extractedPages = parsePageList(item.evidencePages);
+    var extractedSet = {};
+    extractedPages.forEach(function (p) { extractedSet[p] = true; });
+    var retrievedOnlyPages = parsePageList(item.retrievedPages).filter(function (p) { return !extractedSet[p]; });
+    var pages = extractedPages.concat(retrievedOnlyPages);
+    if (!pages.length) return '<span style="color:var(--text-disabled)">—</span>';
+    var value = item.valueText || '';
+    var docTitle = item.docTitle || '';
+    var indicatorName = item.indicatorName || item.indicatorKey || '';
+    var links = pages.map(function (p, i) {
+        var isExtracted = i < extractedPages.length;
+        var cls = isExtracted ? 'page-link' : 'page-link page-link-retrieved';
+        var tip = isExtracted ? '提取页（值实际读出的页）' : '召回页（上下文召回候选页）';
+        return '<span class="' + cls + '" title="' + tip + '" onclick=\'openPageViewer(' + item.docId + ', [' + pages.join(',') + '], ' + i + ', ' + JSON.stringify(value) + ', ' + JSON.stringify(docTitle) + ', ' + JSON.stringify(indicatorName) + ')\'>' + p + '</span>';
+    });
+    return links.join('');
+}
+
+// ── 衍生指标公式浮窗 ──
+var formulaTipEl = null;
+
+function indicatorNameMap() {
+    var map = {};
+    (overview && overview.entities || []).forEach(function (e) {
+        (e.indicators || []).forEach(function (i) {
+            if (!i.indicatorKey || !i.indicatorName) return;
+            if (e.entityType === 'FUND') {
+                map[i.indicatorKey] = i.indicatorName;
+                // FUND:key 引用对应的表达式变量名
+                map['fund_' + i.indicatorKey] = i.indicatorName;
+            } else {
+                // ASSET:资产ID:key 引用对应的表达式变量名
+                map['asset_' + e.entityId + '_' + i.indicatorKey] = e.entityName + '·' + i.indicatorName;
+            }
+        });
+    });
+    return map;
+}
+
+/** 将公式中的指标编码替换为指标名称 */
+function exprWithNames(expr) {
+    var names = indicatorNameMap();
+    return String(expr).replace(/[A-Za-z_][A-Za-z0-9_]*/g, function (token) {
+        return names[token] ? names[token] : token;
+    });
+}
+
+function renderTypeTag(item) {
+    if (item.indicatorType !== 'DERIVED') {
+        return '<span class="tag tag-blue">基础</span>';
+    }
+    if (item.deriveExpression) {
+        return '<span class="tag tag-purple derived-tag" data-expr="' + R2.esc(item.deriveExpression) + '">衍生</span>';
+    }
+    return '<span class="tag tag-purple">衍生</span>';
+}
+
+function showFormulaTip(target) {
+    var expr = target.getAttribute('data-expr');
+    if (!expr) return;
+    if (!formulaTipEl) {
+        formulaTipEl = document.createElement('div');
+        formulaTipEl.className = 'derived-formula-tip';
+        document.body.appendChild(formulaTipEl);
+    }
+    formulaTipEl.innerHTML =
+        '<div><span class="tip-label">计算公式</span>' + R2.esc(expr) + '</div>' +
+        '<div><span class="tip-label">即</span>' + R2.esc(exprWithNames(expr)) + '</div>';
+    formulaTipEl.style.display = 'block';
+    var rect = target.getBoundingClientRect();
+    formulaTipEl.style.left = '0px';
+    formulaTipEl.style.top = '0px';
+    var tipRect = formulaTipEl.getBoundingClientRect();
+    var left = rect.left;
+    if (left + tipRect.width > window.innerWidth - 8) {
+        left = Math.max(8, window.innerWidth - tipRect.width - 8);
+    }
+    var top = rect.bottom + 6;
+    if (top + tipRect.height > window.innerHeight - 8) {
+        top = rect.top - tipRect.height - 6;
+    }
+    formulaTipEl.style.left = left + 'px';
+    formulaTipEl.style.top = top + 'px';
+}
+
+function hideFormulaTip() {
+    if (formulaTipEl) formulaTipEl.style.display = 'none';
+}
+
+document.getElementById('indicatorBody').addEventListener('mouseover', function (e) {
+    var tag = e.target.closest ? e.target.closest('.derived-tag') : null;
+    if (tag) showFormulaTip(tag);
+});
+document.getElementById('indicatorBody').addEventListener('mouseout', function (e) {
+    var tag = e.target.closest ? e.target.closest('.derived-tag') : null;
+    if (tag && (!e.relatedTarget || !tag.contains(e.relatedTarget))) hideFormulaTip();
+});
+
+function renderIndicators() {
+    var entity = overview.entities[activeEntityIndex];
+    indicatorList = entity.indicators || [];
+    if (!indicatorList.length) {
+        R2.tableEmpty('indicatorBody', 13, '该分组下无生效中的指标定义');
+        document.getElementById('indicatorPager').innerHTML = '';
+        updateSelectedCount();
+        return;
+    }
+    renderTable();
+    renderPager();
+}
+
+function renderTable() {
+    var entity = overview.entities[activeEntityIndex];
+    var start = (currentPage - 1) * pageSize;
+    var pageData = indicatorList.slice(start, start + pageSize);
+    var html = '';
+    pageData.forEach(function (item) {
+        var val = displayValue(item);
+        var isDerived = item.indicatorType === 'DERIVED';
+        html += '<tr>';
+        html += '<td>';
+        if (isDerived) {
+            html += '<span style="color:var(--text-disabled);font-size:12px;" title="衍生指标由系统自动重算，不可手动触发提取">—</span>';
+        } else {
+            html += '<input type="checkbox" class="row-check" data-key="' + R2.esc(item.indicatorKey) + '" onchange="updateSelectedCount()">';
+        }
+        html += '</td>';
+        html += '<td>' + R2.esc(item.indicatorKey) + '</td>';
+        html += '<td>' + R2.dash(item.indicatorName) + '</td>';
+        html += '<td>' + renderTypeTag(item) + '</td>';
+        html += '<td>' + R2.dash(R2.VALUE_TYPE_CN[item.valueType] || item.valueType) + '</td>';
+        html += '<td class="value-cell" title="' + R2.esc(item.valueText || item.valueJson || '') + '">' + (val ? R2.esc(val) : '<span style="color:var(--text-disabled)">未提取</span>') + '</td>';
+        html += '<td class="value-cell">' + (item.confirmedValue ? '<span style="color:var(--color-success);font-weight:500;">' + R2.esc(item.confirmedValue + (item.valueUnitName ? ' ' + item.valueUnitName : '')) + '</span>' : '<span style="color:var(--text-disabled)">—</span>') + '</td>';
+        html += '<td>' + R2.fmtConfidence(item.confidence) + '</td>';
+        html += '<td>' + R2.dash(item.sourceChannel) + '</td>';
+        html += '<td class="doc-cell">' + renderSourceDoc(item) + '</td>';
+        html += '<td>' + renderEvidencePages(item) + '</td>';
+        html += '<td>' + R2.fmtDateTime(item.extractedTime) + '</td>';
+        html += '<td style="white-space:nowrap">' +
+            (item.valueId
+                ? '<button class="link-btn" onclick="openConfirmModal(' + item.valueId + ', \'' + R2.esc(item.indicatorName || item.indicatorKey) + '\', \'' + R2.esc(item.confirmedValue || '') + '\')">编辑</button> '
+                : '<span class="link-btn disabled">编辑</span> ') +
+            '<button class="link-btn" onclick="openLastTrace(' + entity.entityId + ', \'' + entity.entityType + '\', \'' + R2.esc(item.indicatorKey) + '\', \'' + R2.esc(item.indicatorName || item.indicatorKey) + '\')">过程</button>' +
+            (item.defId ? ' <a class="link-btn" href="indicator-def-detail.html?id=' + item.defId + '">指标</a>' : '') +
+            '</td>';
+        html += '</tr>';
+    });
+    document.getElementById('indicatorBody').innerHTML = html;
+    document.getElementById('checkAll').checked = false;
+    updateSelectedCount();
+}
+
+function renderPager() {
+    Components.renderPager('indicatorPager', {
+        total: indicatorList.length,
+        page: currentPage,
+        pageSize: pageSize,
+        pageSizes: [10, 20, 50],
+        onChange: goPage,
+        onSizeChange: function(size) {
+            pageSize = size;
+            goPage(1);
+        }
+    });
+}
+
+function goPage(page) {
+    var totalPages = Math.ceil(indicatorList.length / pageSize) || 1;
+    if (page < 1 || page > totalPages) return;
+    currentPage = page;
+    renderTable();
+    renderPager();
+}
+
+// ── 证据页查看器 ──
+function escapeRegExp(s) {
+    return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * 在原文中定位提取值并加粗高亮。
+ * PDF 抽取文本字符间可能带空白（如"6 9 . 9 9"），匹配时允许字符间任意空白。
+ */
+function highlightValue(rawText, value) {
+    var escaped = R2.esc(rawText || '（该页无文本内容）');
+    if (!rawText || !value || !value.trim()) return escaped;
+    var trimmed = value.trim();
+    if (trimmed.length > 60) trimmed = trimmed.substring(0, 60);
+    // 字符间允许任意空白的宽松匹配
+    var pattern = trimmed.split('').map(escapeRegExp).join('\\s*');
+    var regex;
+    try {
+        regex = new RegExp(pattern, 'gi');
+    } catch (e) {
+        return escaped;
+    }
+    var result = '';
+    var lastIndex = 0;
+    var match;
+    var hitCount = 0;
+    while ((match = regex.exec(rawText)) !== null && hitCount < 20) {
+        result += R2.esc(rawText.substring(lastIndex, match.index));
+        result += '<mark class="pv-hl">' + R2.esc(match[0]) + '</mark>';
+        lastIndex = match.index + match[0].length;
+        hitCount++;
+        if (match[0].length === 0) regex.lastIndex++;
+    }
+    result += R2.esc(rawText.substring(lastIndex));
+    return result;
+}
+
+function renderPageMarkdown(md, value) {
+    if (!md) return '';
+    var lines = md.split('\n');
+    var html = '';
+    var textBuffer = '';
+    var inTable = false;
+    var tableLines = [];
+
+    function flushText() {
+        if (textBuffer.length > 0) {
+            html += '<p>' + highlightValue(textBuffer, value).replace(/\n/g, '<br>') + '</p>';
+            textBuffer = '';
+        }
+    }
+
+    function flushTable() {
+        if (tableLines.length > 0) {
+            html += markdownTableBlockToHtml(tableLines, value);
+            tableLines = [];
+        }
+    }
+
+    for (var i = 0; i < lines.length; i++) {
+        var line = lines[i];
+        var trimmed = line.trim();
+        var isTableLine = trimmed.startsWith('|');
+        if (isTableLine) {
+            if (!inTable) {
+                flushText();
+                inTable = true;
+            }
+            tableLines.push(line);
+        } else {
+            if (inTable) {
+                flushTable();
+                inTable = false;
+            }
+            if (textBuffer.length > 0) {
+                textBuffer += '\n';
+            }
+            textBuffer += line;
+        }
+    }
+    flushText();
+    flushTable();
+    return html;
+}
+
+function markdownTableBlockToHtml(lines, value) {
+    if (!lines || lines.length < 2) return '<pre>' + highlightValue(lines.join('\n'), value) + '</pre>';
+    var html = '<table class="md-table"><thead><tr>';
+    var headers = lines[0].split('|').map(function (s) { return s.trim(); }).filter(function (s) { return s !== ''; });
+    headers.forEach(function (h) { html += '<th>' + highlightValue(h, value) + '</th>'; });
+    html += '</tr></thead><tbody>';
+    for (var i = 2; i < lines.length; i++) {
+        var cells = lines[i].split('|').map(function (s) { return s.trim(); }).filter(function (s) { return s !== ''; });
+        html += '<tr>';
+        cells.forEach(function (c) { html += '<td>' + highlightValue(c, value) + '</td>'; });
+        html += '</tr>';
+    }
+    html += '</tbody></table>';
+    return html;
+}
+
+async function openPageViewer(docId, pages, startIdx, value, docTitle, indicatorName) {
+    var fragments = await R2.get('/api/reits/doc-fragments?docId=' + docId + '&pages=' + pages.join(','));
+    if (!fragments || !fragments.length) {
+        R2.toast('未找到对应页码的文本内容', 'error');
+        return;
+    }
+    var idx = 0;
+    if (startIdx !== undefined && startIdx !== null && startIdx >= 0) {
+        var targetPage = pages[startIdx];
+        for (var i = 0; i < fragments.length; i++) {
+            if (fragments[i].pageNo === targetPage) {
+                idx = i;
+                break;
+            }
+        }
+    }
+    var pdfUrl = null;
+    var pdfDoc = null;
+    var pdfCanvas = null;
+    var pdfCtx = null;
+
+    try {
+        var urlResp = await R2.get('/api/reits/fund-documents/' + docId + '/download-url');
+        pdfUrl = urlResp && urlResp.url ? urlResp.url : null;
+    } catch (e) {
+        pdfUrl = null;
+    }
+
+    var mask = R2.openModal({
+        title: '证据页内容',
+        extraWide: true,
+        hideFooter: true,
+        bodyHtml:
+            '<div class="page-viewer-nav">' +
+            '  <button class="btn btn-default btn-sm" id="pvPrev">‹ 上一页</button>' +
+            '  <span class="pv-indicator" id="pvIndicator"></span>' +
+            '  <button class="btn btn-default btn-sm" id="pvNext">下一页 ›</button>' +
+            (docTitle ? '  <span class="pv-doc" data-tip="' + R2.esc(docTitle) + '">来源文档：' + R2.esc(docTitle) + '</span>' : '') +
+            '</div>' +
+            '<div class="page-viewer-wrap">' +
+            '  <div class="page-viewer-col">' +
+            '    <div class="col-header">📄 提取文本</div>' +
+            '    <div class="page-viewer-text" id="pvText"></div>' +
+            '  </div>' +
+            '  <div class="page-viewer-col">' +
+            '    <div class="col-header" style="display:flex;justify-content:space-between;align-items:center;">' +
+            '      <span>🔍 PDF 原文</span><span id="pvPageNo" style="font-weight:600;color:var(--admin-text-primary,#303133);"></span>' +
+            '    </div>' +
+            '    <div class="page-viewer-pdf" id="pvPdfWrap">' +
+            '      <div class="pdf-loading" id="pvPdfLoading">' +
+            '        <div class="spinner"></div>' +
+            '        <div class="pdf-loading-text">正在加载 PDF 页面…</div>' +
+            '      </div>' +
+            '      <div class="pdf-fallback" id="pvPdfFallback" style="display:none;">正在加载 PDF 预览…</div>' +
+            '      <canvas id="pvPdfCanvas" style="display:none;"></canvas>' +
+            '    </div>' +
+            '  </div>' +
+            '</div>'
+    });
+
+    var titleHtml = '证据页内容';
+    if (indicatorName) titleHtml += '　<span style="color:#e6a23c;font-weight:600;">' + R2.esc(indicatorName) + '</span>';
+    if (value) titleHtml += '　高亮值：<span style="color:#e6a23c;font-weight:600;">' + R2.esc(value) + '</span>';
+    mask.querySelector('.modal-header span').innerHTML = titleHtml;
+
+    function renderText() {
+        var f = fragments[idx];
+        mask.querySelector('#pvIndicator').textContent = '（' + (idx + 1) + ' / ' + fragments.length + '）';
+        mask.querySelector('#pvPageNo').textContent = '第 ' + f.pageNo + ' 页';
+        mask.querySelector('#pvText').innerHTML = renderPageMarkdown(f.text, value);
+        mask.querySelector('#pvPrev').disabled = idx <= 0;
+        mask.querySelector('#pvNext').disabled = idx >= fragments.length - 1;
+    }
+
+    async function renderPdf() {
+        var f = fragments[idx];
+        var pageNo = f.pageNo || 1;
+        var fallback = mask.querySelector('#pvPdfFallback');
+        var loading = mask.querySelector('#pvPdfLoading');
+        var canvas = mask.querySelector('#pvPdfCanvas');
+        if (!pdfUrl) {
+            loading.style.display = 'none';
+            fallback.innerHTML = '暂无 PDF 源文件。<br><a href="' + R2.basePath() + '/api/reits/fund-documents/' + docId + '/download-url" target="_blank" style="color:var(--color-primary)">尝试获取下载链接</a>';
+            fallback.style.display = 'block';
+            canvas.style.display = 'none';
+            return;
+        }
+        if (typeof pdfjsLib === 'undefined') {
+            loading.style.display = 'none';
+            fallback.innerHTML = 'PDF 预览组件加载失败。<br><a href="' + R2.esc(pdfUrl) + '" target="_blank" style="color:var(--color-primary)">点击下载源文件</a>';
+            fallback.style.display = 'block';
+            canvas.style.display = 'none';
+            return;
+        }
+        fallback.style.display = 'none';
+        canvas.style.display = 'none';
+        loading.style.display = 'flex';
+        try {
+            if (!pdfDoc) {
+                pdfDoc = await pdfjsLib.getDocument({ url: pdfUrl, withCredentials: false }).promise;
+            }
+            if (pageNo > pdfDoc.numPages) pageNo = pdfDoc.numPages;
+            if (pageNo < 1) pageNo = 1;
+            var page = await pdfDoc.getPage(pageNo);
+            var wrap = mask.querySelector('#pvPdfWrap');
+            var maxWidth = wrap.clientWidth - 48;
+            var viewport = page.getViewport({ scale: 1 });
+            var scale = Math.min(maxWidth / viewport.width, 2);
+            var scaledViewport = page.getViewport({ scale: scale });
+            canvas.width = scaledViewport.width;
+            canvas.height = scaledViewport.height;
+            pdfCtx = canvas.getContext('2d');
+            pdfCtx.clearRect(0, 0, canvas.width, canvas.height);
+            await page.render({ canvasContext: pdfCtx, viewport: scaledViewport }).promise;
+            loading.style.display = 'none';
+            canvas.style.display = 'block';
+        } catch (e) {
+            loading.style.display = 'none';
+            fallback.innerHTML = 'PDF 渲染失败：' + R2.esc(e.message || '') + '<br><a href="' + R2.esc(pdfUrl) + '" target="_blank" style="color:var(--color-primary)">点击下载源文件</a>';
+            fallback.style.display = 'block';
+            canvas.style.display = 'none';
+        }
+    }
+
+    function render() {
+        renderText();
+        renderPdf();
+    }
+
+    mask.querySelector('#pvPrev').addEventListener('click', function () { if (idx > 0) { idx--; render(); } });
+    mask.querySelector('#pvNext').addEventListener('click', function () { if (idx < fragments.length - 1) { idx++; render(); } });
+    render();
+}
+
+// ── Trace 时间线渲染（通用） ──
+var TRACE_STAGE_CN = {
+    PLAN: '规划', RETRIEVE: '上下文召回', ROUTE: '路由', EXPAND: '扩展',
+    EXTRACT: '提取', ARBITRATE: '仲裁', PERSIST: '持久化', DERIVE: '衍生计算', ERROR: '错误'
+};
+
+// 节点扩展内容（正则规则 / AI 对话）存储，按钮按 id 取用，避免把大段内容塞进 DOM 属性
+var _traceExtStore = {};
+var _traceExtSeq = 0;
+
+function registerTraceExt(data) {
+    var id = 'te' + (++_traceExtSeq);
+    _traceExtStore[id] = data;
+    return id;
+}
+
+function entityName(entityType, entityId) {
+    var found = null;
+    (overview.entities || []).forEach(function (e) {
+        if (e.entityType === entityType && e.entityId === entityId) found = e.entityName;
+    });
+    return found || (entityType + '-' + entityId);
+}
+
+function renderTraceGroupsHtml(traces, filterIndicatorKey) {
+    var filtered = (traces || []).filter(function (t) {
+        return !filterIndicatorKey || t.indicatorKey === filterIndicatorKey;
+    });
+    if (!filtered.length) {
+        return '<div class="table-empty">暂无 Trace 数据</div>';
+    }
+    var groups = {};
+    var order = [];
+    filtered.forEach(function (t) {
+        var key = entityName(t.entityType, t.entityId) + ' / ' + (t.indicatorKey || '-');
+        if (!groups[key]) { groups[key] = []; order.push(key); }
+        groups[key].push(t);
+    });
+    var html = '';
+    order.forEach(function (key, idx) {
+        html += '<div class="trace-group' + (idx > 0 ? ' collapsed' : '') + '">';
+        html += '<div class="trace-group-header" onclick="this.parentNode.classList.toggle(\'collapsed\')">' +
+            '<span class="arrow">▼</span>' + R2.esc(key) + '</div>';
+        html += '<div class="trace-nodes">';
+        groups[key].forEach(function (t) {
+            html += '<div class="trace-node stage-' + R2.esc(t.stage) + '">';
+            html += '<div class="trace-node-head">';
+            html += '<span class="stage-name">' + R2.esc(TRACE_STAGE_CN[t.stage] || t.stage) + '</span>';
+            if (t.channelCode) html += '<span class="tag tag-blue">' + R2.esc(t.channelCode) + '</span>';
+            var meta = [];
+            if (t.durationMs) meta.push('耗时 ' + t.durationMs + 'ms');
+            if (t.tokenIn || t.tokenOut) meta.push('token ' + (t.tokenIn || 0) + '/' + (t.tokenOut || 0));
+            meta.push(String(t.createTime || '').replace('T', ' ').substring(0, 19));
+            html += '<span class="trace-meta">' + R2.esc(meta.join(' · ')) + '</span>';
+            html += '</div>';
+            // 先解析 extJson（ARBITRATE 阶段需在 io 区域展示版本优先级）
+            var ext = null;
+            if (t.extJson) {
+                try { ext = JSON.parse(t.extJson); } catch (e) { ext = null; }
+            }
+            var io = '';
+            if (t.inputJson) io += '<div><span class="io-label">输入</span>' + R2.esc(t.inputJson) + '</div>';
+            if (t.outputJson) io += '<div><span class="io-label">输出</span>' + R2.esc(t.outputJson) + '</div>';
+            if (t.errorMsg) io += '<div><span class="io-label">错误</span><span style="color:var(--color-danger)">' + R2.esc(t.errorMsg) + '</span></div>';
+            // ARBITRATE 阶段：直接展示文件类型及其顺序（版本优先级）
+            if (t.stage === 'ARBITRATE' && ext && ext.versionPriority && ext.versionPriority.length) {
+                var vpHtml = '';
+                ext.versionPriority.forEach(function (d) {
+                    vpHtml += '<div class="vp-item">' +
+                        '<span class="tag ' + (d.used ? 'tag-green' : 'tag-gray') + '">优先级 ' + (d.priority || '-') + '</span> ' +
+                        '<span class="vp-doctype">' + R2.esc(d.docType || '-') + '</span>' +
+                        ' <span class="vp-version">v' + R2.esc(d.versionNo == null ? '-' : d.versionNo) + '</span>' +
+                        (d.publishDate ? ' <span class="vp-date">' + R2.esc(d.publishDate) + ' 披露</span>' : '') +
+                        (d.used ? ' <span class="vp-used">✓ 最终取值</span>' : '') +
+                        '</div>';
+                });
+                io += '<div><span class="io-label">文件类型及顺序</span><div class="vp-list">' + vpHtml + '</div></div>';
+            }
+            if (io) html += '<div class="trace-node-io">' + io + '</div>';
+            // 步骤尾部按内容追加「查看召回文件 / 查看正则表达式 / 查看AI对话」入口
+            if (ext) {
+                var actions = '';
+                if (ext.retrievedDocs && ext.retrievedDocs.length > 1) {
+                    actions += '<button class="link-btn" onclick="showTraceRetrievedDocs(\'' + registerTraceExt(ext.retrievedDocs) + '\')">查看召回文件（' + ext.retrievedDocs.length + '个版本）</button>';
+                } else if (ext.retrievedDoc) {
+                    actions += '<button class="link-btn" onclick="showTraceRetrievedDoc(\'' + registerTraceExt(ext.retrievedDoc) + '\')">查看召回文件</button>';
+                }
+                if (ext.versionPriority && ext.versionPriority.length > 1) {
+                    actions += '<button class="link-btn" onclick="showTraceVersionPriority(\'' + registerTraceExt(ext.versionPriority) + '\')">查看版本优先级</button>';
+                }
+                if (ext.regexRules && ext.regexRules.length) {
+                    actions += '<button class="link-btn" onclick="showTraceRegex(\'' + registerTraceExt(ext.regexRules) + '\')">查看正则表达式</button>';
+                }
+                if (ext.prompt || ext.response) {
+                    actions += '<button class="link-btn" onclick="showTraceAiDialog(\'' + registerTraceExt({ prompt: ext.prompt, response: ext.response }) + '\')">查看AI对话</button>';
+                }
+                if (actions) html += '<div class="trace-node-actions">' + actions + '</div>';
+            }
+            html += '</div>';
+        });
+        html += '</div></div>';
+    });
+    return html;
+}
+
+// ── Trace 扩展内容弹窗 ──
+function showTraceRegex(id) {
+    var rules = _traceExtStore[id] || [];
+    var html = '';
+    rules.forEach(function (r, i) {
+        html += '<div class="ext-block">' +
+            '<div class="ext-block-head">' +
+            '<span class="ext-block-title">规则 ' + (i + 1) + (r.name ? '：' + R2.esc(r.name) : '') + '</span>' +
+            (r.hit ? '<span class="tag tag-green">命中</span>' : '<span class="tag tag-gray">未命中</span>') +
+            '</div>' +
+            '<pre class="ext-pre">' + R2.esc(r.pattern || '') + '</pre>' +
+            '</div>';
+    });
+    R2.openModal({
+        title: '正则表达式（按优先级顺序尝试，命中即取）',
+        wide: true,
+        hideFooter: true,
+        bodyHtml: html || '<div class="table-empty">无正则规则</div>'
+    });
+}
+
+function showTraceRetrievedDoc(id) {
+    var doc = _traceExtStore[id] || {};
+    var pages = (doc.pages && doc.pages.length) ? doc.pages.join('、') : '（无）';
+    R2.openModal({
+        title: '召回文件',
+        hideFooter: true,
+        bodyHtml:
+            '<div class="ext-block">' +
+            '<div class="ext-block-head"><span class="ext-block-title">文件名称</span></div>' +
+            '<pre class="ext-pre">' + R2.esc(doc.docTitle || '（未知）') + '</pre>' +
+            '</div>' +
+            '<div class="ext-block">' +
+            '<div class="ext-block-head"><span class="ext-block-title">文档类型 / 版本</span></div>' +
+            '<pre class="ext-pre">' + R2.esc((doc.docType || '-') + ' / v' + (doc.versionNo == null ? '-' : doc.versionNo)) + '</pre>' +
+            '</div>' +
+            '<div class="ext-block">' +
+            '<div class="ext-block-head"><span class="ext-block-title">召回页码（含上下文扩展）</span></div>' +
+            '<pre class="ext-pre">' + R2.esc(pages) + '</pre>' +
+            '</div>'
+    });
+}
+
+// 多版本召回文件：按披露时间倒序展示所有抓取版本，标注优先级与是否被采用
+function showTraceRetrievedDocs(id) {
+    var docs = _traceExtStore[id] || [];
+    var html = '';
+    docs.forEach(function (doc, idx) {
+        var pages = (doc.pages && doc.pages.length) ? doc.pages.join('、') : '（无）';
+        html += '<div class="ext-block">' +
+            '<div class="ext-block-head">' +
+            '<span class="ext-block-title">优先级 ' + (doc.priority || (idx + 1)) + '：' + R2.esc(doc.docTitle || '（未知）') + '</span>' +
+            (doc.used ? '<span class="tag tag-green">已采用</span>' : '<span class="tag tag-gray">未采用</span>') +
+            '</div>' +
+            '<pre class="ext-pre">文档类型 / 版本：' + R2.esc((doc.docType || '-') + ' / v' + (doc.versionNo == null ? '-' : doc.versionNo)) +
+            (doc.publishDate ? '\n披露时间：' + R2.esc(doc.publishDate) : '') +
+            '\n召回页码：' + R2.esc(pages) + '</pre>' +
+            '</div>';
+    });
+    R2.openModal({
+        title: '召回文件（多版本，按披露时间倒序，最新披露优先）',
+        wide: true,
+        hideFooter: true,
+        bodyHtml: html || '<div class="table-empty">无召回文件</div>'
+    });
+}
+
+// 版本优先级：仲裁阶段展示，按披露时间倒序，最新披露优先，最终取值以最新披露版本为准
+function showTraceVersionPriority(id) {
+    var docs = _traceExtStore[id] || [];
+    var html = '';
+    docs.forEach(function (doc, idx) {
+        html += '<div class="ext-block">' +
+            '<div class="ext-block-head">' +
+            '<span class="ext-block-title">优先级 ' + (doc.priority || (idx + 1)) + '：' + R2.esc(doc.docTitle || '（未知）') + '</span>' +
+            (doc.used ? '<span class="tag tag-green">最终取值</span>' : '<span class="tag tag-gray">未采用</span>') +
+            '</div>' +
+            '<pre class="ext-pre">文档类型 / 版本：' + R2.esc((doc.docType || '-') + ' / v' + (doc.versionNo == null ? '-' : doc.versionNo)) +
+            (doc.publishDate ? '\n披露时间：' + R2.esc(doc.publishDate) : '') + '</pre>' +
+            '</div>';
+    });
+    R2.openModal({
+        title: '版本优先级（按披露时间倒序，最新披露优先，最终取值以最新披露版本为准）',
+        wide: true,
+        hideFooter: true,
+        bodyHtml: html || '<div class="table-empty">无版本信息</div>'
+    });
+}
+
+function showTraceAiDialog(id) {
+    var data = _traceExtStore[id] || {};
+    R2.openModal({
+        title: 'AI 对话',
+        extraWide: true,
+        hideFooter: true,
+        bodyHtml:
+            '<div class="ext-block">' +
+            '<div class="ext-block-head"><span class="ext-block-title">提示词（Prompt）</span></div>' +
+            '<pre class="ext-pre ext-pre-lg">' + R2.esc(data.prompt || '（无）') + '</pre>' +
+            '</div>' +
+            '<div class="ext-block">' +
+            '<div class="ext-block-head"><span class="ext-block-title">AI 响应</span></div>' +
+            '<pre class="ext-pre">' + R2.esc(data.response || '（无）') + '</pre>' +
+            '</div>'
+    });
+}
+
+// ── 单个指标最近一次提取过程 ──
+async function openLastTrace(entityId, entityType, indicatorKey, indicatorName) {
+    var traces = await R2.get('/api/reits/extract/last-trace?fundId=' + fundId +
+        '&entityType=' + entityType + '&entityId=' + entityId + '&indicatorKey=' + encodeURIComponent(indicatorKey));
+    R2.openModal({
+        title: '提取过程 — ' + indicatorName,
+        wide: true,
+        hideFooter: true,
+        bodyHtml: '<div class="trace-panel">' + renderTraceGroupsHtml(traces, null) + '</div>'
+    });
+}
+
+// ── 勾选 ──
+document.getElementById('checkAll').addEventListener('change', function () {
+    var checked = this.checked;
+    document.querySelectorAll('.row-check:not(:disabled)').forEach(function (cb) { cb.checked = checked; });
+    updateSelectedCount();
+});
+
+function updateSelectedCount() {
+    var n = document.querySelectorAll('.row-check:checked').length;
+    document.getElementById('selectedCount').textContent = '已选 ' + n + ' 个指标';
+}
+
+// ── 人工确认 ──
+function openConfirmModal(valueId, name, currentValue) {
+    R2.openModal({
+        title: '人工确认指标值 — ' + name,
+        okText: '保存',
+        bodyHtml:
+            '<div class="form-grid">' +
+            '  <div class="form-field full"><span class="f-label">确认值<span class="required">*</span></span>' +
+            '    <textarea class="textarea" id="m_confirmedValue">' + R2.esc(currentValue || '') + '</textarea></div>' +
+            '  <div class="form-field full"><span class="f-label">确认人</span><input class="input" id="m_confirmedBy" placeholder="admin"></div>' +
+            '</div>',
+        onOk: async function (bodyEl) {
+            var v = bodyEl.querySelector('#m_confirmedValue').value.trim();
+            if (!v) { R2.toast('确认值不能为空', 'error'); return false; }
+            await R2.put('/api/reits/indicator-values/' + valueId + '/confirm', {
+                confirmedValue: v,
+                confirmedBy: bodyEl.querySelector('#m_confirmedBy').value.trim() || 'admin'
+            });
+            R2.toast('已保存确认值', 'success');
+            loadOverview();
+        }
+    });
+}
+
+// ── 同步基金文档 ──
+function syncDocuments() {
+    R2.confirm('将根据基金代码（未维护代码时按基金名称/简称）从全量文档库匹配文档，每个文档类型取最新发布的一篇复制到基金文档表并上传 MinIO。确认同步？', async function () {
+        var btn = document.getElementById('btnSyncDocs');
+        btn.disabled = true;
+        btn.textContent = '同步中...';
+        try {
+            var result = await R2.post('/api/reits/funds/' + fundId + '/sync-documents');
+            var msg = '新导入 ' + result.importedCount + ' 篇，内容解析成功 ' + result.parsedCount + ' 篇';
+            if (result.importedDocs && result.importedDocs.length) {
+                msg += '（' + result.importedDocs.join('、') + '）';
+            }
+            if (result.parseFailedCount > 0) {
+                msg += '；解析失败 ' + result.parseFailedCount + ' 篇：' + (result.parseFailures || []).join('、');
+                R2.toast(msg, 'error');
+            } else {
+                R2.toast('同步完成：' + msg, 'success');
+            }
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '同步基金文档';
+        }
+    });
+}
+
+// ── 触发提取（弹窗展示过程，每个指标一个页签） ──
+var extractMask = null;
+var extractKeys = [];
+var activeExtractTab = 0;
+var userPinnedTab = false;
+
+function indicatorNameOf(key) {
+    var name = key;
+    (overview.entities || []).forEach(function (e) {
+        (e.indicators || []).forEach(function (i) {
+            if (i.indicatorKey === key && i.indicatorName) name = i.indicatorName;
+        });
+    });
+    return name;
+}
+
+async function triggerExtract() {
+    var keys = {};
+    document.querySelectorAll('.row-check:checked').forEach(function (cb) { keys[cb.dataset.key] = true; });
+    var indicatorKeys = Object.keys(keys);
+    if (!indicatorKeys.length) { R2.toast('请先勾选要提取的指标', 'error'); return; }
+
+    document.getElementById('btnExtract').disabled = true;
+    try {
+        currentRunId = await R2.post('/api/reits/extract/manual', { fundId: fundId, indicatorKeys: indicatorKeys });
+        extractKeys = indicatorKeys;
+        activeExtractTab = 0;
+        userPinnedTab = false;
+        openExtractModal();
+        R2.toast('已触发提取', 'success');
+        pollRun();
+    } catch (e) {
+        document.getElementById('btnExtract').disabled = false;
+    }
+}
+
+// ── 计算衍生指标（不重新提取基础指标，适用于衍生计算规则变更场景） ──
+var derivePollTimer = null;
+
+function resetDeriveBtn() {
+    var btn = document.getElementById('btnDerive');
+    btn.disabled = false;
+    btn.textContent = '计算衍生指标';
+}
+
+function triggerDerive() {
+    R2.confirm('将使用各基础指标的最新值，按当前生效的计算规则重算全部衍生指标，不会重新提取基础指标。确认执行？', async function () {
+        var btn = document.getElementById('btnDerive');
+        btn.disabled = true;
+        btn.textContent = '计算中...';
+        try {
+            var runId = await R2.post('/api/reits/extract/derive-only', { fundId: fundId });
+            pollDeriveRun(runId);
+        } catch (e) {
+            resetDeriveBtn();
+        }
+    });
+}
+
+function pollDeriveRun(runId) {
+    if (derivePollTimer) clearTimeout(derivePollTimer);
+    refreshDeriveRun(runId);
+    derivePollTimer = setTimeout(function () { pollDeriveRun(runId); }, 2000);
+}
+
+async function refreshDeriveRun(runId) {
+    try {
+        var view = await R2.get('/api/reits/extract/run/' + runId);
+        var status = view.run.status;
+        if (status === 'COMPLETED' || status === 'FAILED') {
+            clearTimeout(derivePollTimer);
+            derivePollTimer = null;
+            resetDeriveBtn();
+            R2.toast(status === 'COMPLETED' ? '衍生指标计算完成' : '衍生指标计算失败：' + (view.run.errorMsg || ''),
+                status === 'COMPLETED' ? 'success' : 'error');
+            loadOverview(); // 刷新指标值
+        }
+    } catch (e) {
+        clearTimeout(derivePollTimer);
+        derivePollTimer = null;
+        resetDeriveBtn();
+    }
+}
+
+function openExtractModal() {
+    extractMask = R2.openModal({
+        title: '提取过程',
+        wide: true,
+        hideFooter: true,
+        bodyHtml:
+            '<div class="run-status-bar" id="exRunStatus"></div>' +
+            '<div class="tabs" id="exTabs"></div>' +
+            '<div id="exTabContent"></div>'
+    });
+}
+
+function taskStatusOf(tasks, indicatorKey) {
+    var related = (tasks || []).filter(function (t) { return t.indicatorKey === indicatorKey; });
+    if (!related.length) return 'PENDING';
+    if (related.every(function (t) { return t.taskStatus === 'PENDING'; })) return 'PENDING';
+    if (related.some(function (t) { return t.taskStatus === 'PROCESSING' || t.taskStatus === 'PENDING'; })) return 'RUNNING';
+    if (related.every(function (t) { return t.taskStatus === 'SUCCESS'; })) return 'SUCCESS';
+    if (related.every(function (t) { return t.taskStatus === 'SKIPPED'; })) return 'SKIPPED';
+    if (related.some(function (t) { return t.taskStatus === 'FAILED'; })) return 'FAILED';
+    return 'SUCCESS';
+}
+
+function isFinishedStatus(status) {
+    return status === 'SUCCESS' || status === 'FAILED' || status === 'SKIPPED';
+}
+
+function tabStatusTag(status) {
+    var map = {
+        PENDING: { text: '等待', cls: 'tag-gray' },
+        RUNNING: { text: '执行中', cls: 'tag-blue' },
+        SUCCESS: { text: '成功', cls: 'tag-green' },
+        FAILED: { text: '失败', cls: 'tag-red' },
+        SKIPPED: { text: '跳过', cls: 'tag-orange' }
+    };
+    var item = map[status] || map.PENDING;
+    return '<span class="tag ' + item.cls + ' ext-tab-status">' + item.text + '</span>';
+}
+
+function renderExtractTabs(tasks) {
+    if (!extractMask) return;
+    var html = '';
+    extractKeys.forEach(function (key, idx) {
+        var status = taskStatusOf(tasks, key);
+        html += '<div class="tab-item' + (idx === activeExtractTab ? ' active' : '') + '" data-ext-tab="' + idx + '">' +
+            R2.esc(indicatorNameOf(key)) + tabStatusTag(status) + '</div>';
+    });
+    var tabsEl = extractMask.querySelector('#exTabs');
+    tabsEl.innerHTML = html;
+    tabsEl.querySelectorAll('[data-ext-tab]').forEach(function (el) {
+        el.addEventListener('click', function () {
+            activeExtractTab = Number(el.getAttribute('data-ext-tab'));
+            userPinnedTab = true; // 用户手动切页签后不再自动跳转
+            renderExtractTabs(window._lastTasks || []);
+            renderExtractTabContent(window._lastTasks || [], window._lastTraces || []);
+        });
+    });
+}
+
+function renderExtractTabContent(tasks, traces) {
+    if (!extractMask) return;
+    var key = extractKeys[activeExtractTab];
+    var html = '<div class="trace-panel">' + renderTraceGroupsHtml(traces, key) + '</div>';
+    extractMask.querySelector('#exTabContent').innerHTML = html;
+}
+
+function renderRunStatus(run) {
+    if (!extractMask) return;
+    var html = '';
+    html += '<span><span class="rs-label">状态：</span>' + R2.tag(R2.RUN_STATUS, run.status) + '</span>';
+    html += '<span><span class="rs-label">触发时间：</span><span class="rs-value">' + R2.fmtDateTime(run.triggerTime) + '</span></span>';
+    if (run.completedTime) {
+        html += '<span><span class="rs-label">完成时间：</span><span class="rs-value">' + R2.fmtDateTime(run.completedTime) + '</span></span>';
+    }
+    if (run.errorMsg) {
+        html += '<span><span class="rs-label">错误：</span><span class="rs-value" style="color:var(--color-danger)">' + R2.esc(run.errorMsg) + '</span></span>';
+    }
+    extractMask.querySelector('#exRunStatus').innerHTML = html;
+}
+
+function pollRun() {
+    if (pollTimer) clearTimeout(pollTimer);
+    refreshRunView();
+    pollTimer = setTimeout(pollRun, 2000);
+}
+
+async function refreshRunView() {
+    if (!currentRunId) return;
+    try {
+        var view = await R2.get('/api/reits/extract/run/' + currentRunId);
+        var traces = await R2.get('/api/reits/extract/run/' + currentRunId + '/trace');
+        window._lastTasks = view.tasks || [];
+        window._lastTraces = traces || [];
+
+        // 自动切换：当前页签已完成且用户未手动选择时，跳到下一个未完成的指标
+        if (!userPinnedTab && extractKeys.length) {
+            var currentStatus = taskStatusOf(window._lastTasks, extractKeys[activeExtractTab]);
+            if (isFinishedStatus(currentStatus)) {
+                for (var i = 0; i < extractKeys.length; i++) {
+                    if (!isFinishedStatus(taskStatusOf(window._lastTasks, extractKeys[i]))) {
+                        activeExtractTab = i;
+                        break;
+                    }
+                }
+            }
+        }
+
+        renderRunStatus(view.run);
+        renderExtractTabs(window._lastTasks);
+        renderExtractTabContent(window._lastTasks, window._lastTraces);
+
+        var status = view.run.status;
+        if (status === 'COMPLETED' || status === 'FAILED') {
+            clearTimeout(pollTimer);
+            pollTimer = null;
+            document.getElementById('btnExtract').disabled = false;
+            R2.toast(status === 'COMPLETED' ? '提取完成' : '提取失败：' + (view.run.errorMsg || ''), status === 'COMPLETED' ? 'success' : 'error');
+            loadOverview(); // 刷新指标值
+        }
+    } catch (e) {
+        clearTimeout(pollTimer);
+        pollTimer = null;
+        document.getElementById('btnExtract').disabled = false;
+    }
+}
+
+loadOverview().catch(function () { R2.toast('加载基金指标失败', 'error'); });
+</script>
+
+
+<div class="global-tip" style="display: none; left: 1105.4px; top: 724px;">中金唯品会封闭式商业不动产证券投资基金基金份额询价公告（v1）</div></body></html>
