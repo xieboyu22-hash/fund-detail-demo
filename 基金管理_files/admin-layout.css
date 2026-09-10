@@ -1,0 +1,554 @@
+@import url("/assets/css/admin-vars.css");
+
+/**
+ * 全局布局 - AMS-FE 风格
+ * 结构复刻 ams-fe/src/views/Layout.vue + leftMenu/Index.vue：
+ * 外层渐变背景，左侧透明侧栏悬浮胶囊菜单（激活为蓝色胶囊），
+ * 右侧 #F5F7FB 主区域，顶部白底 Header 内置面包屑 + 用户信息。
+ */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  font-family: var(--admin-font-family);
+  font-size: var(--admin-font-base);
+  color: var(--admin-text-primary);
+  line-height: var(--admin-line-height);
+  background: var(--admin-bg-page-outer);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: var(--admin-primary);
+  text-decoration: none;
+}
+
+/* 应用容器 */
+#app,
+.admin-app {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ============================================================
+   侧边栏（left-menu-wrapper：透明，悬浮胶囊菜单）
+   ============================================================ */
+.admin-sidebar {
+  flex-shrink: 0;
+  width: var(--admin-sidebar-width);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: width 0.2s;
+}
+
+.admin-sidebar.collapsed {
+  width: var(--admin-sidebar-collapsed-width);
+}
+
+/* 品牌区（menu-brand：54px 高，logo 36px，名称 16px/600/#1f2d3d） */
+.admin-sidebar .menu-brand {
+  height: var(--admin-header-height);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 20px;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.admin-sidebar .menu-brand .brand-logo {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-shrink: 0;
+}
+
+.admin-sidebar .menu-brand .brand-logo img {
+  width: 36px;
+  height: 36px;
+  display: block;
+  object-fit: contain;
+}
+
+.admin-sidebar .menu-brand .brand-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2d3d;
+  white-space: nowrap;
+  overflow: hidden;
+  margin-left: -2px;
+}
+
+/* 折叠态居中显示，并隐藏文字 */
+.admin-sidebar.collapsed .menu-brand {
+  padding: 0 14px;
+  justify-content: center;
+}
+
+.admin-sidebar.collapsed .menu-brand .brand-name {
+  display: none;
+}
+
+/* ============================================================
+   菜单（el-menu 定制：36px 高、margin 8px 0、radius 6px、
+   hover #e7edf7、激活 #2f6bff 蓝胶囊 + 投影）
+   ============================================================ */
+.admin-menu {
+  list-style: none;
+  margin: -3px 0 0;
+  padding: 8px 6px 12px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1;
+}
+
+.admin-menu::-webkit-scrollbar {
+  width: 4px;
+}
+
+.admin-menu::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 2px;
+}
+
+.admin-menu li {
+  margin: 0;
+}
+
+.admin-menu .menu-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 36px;
+  line-height: 36px;
+  margin: 8px 0;
+  padding: 0 20px;
+  border-radius: 6px;
+  color: var(--admin-menu-text);
+  font-size: 15px;
+  font-weight: 500;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.admin-menu .menu-item i.menu-icon {
+  width: 16px;
+  margin-right: 8px;
+  font-size: 14px;
+  color: var(--admin-menu-icon);
+  text-align: center;
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+
+.admin-menu .menu-item:hover {
+  background: var(--admin-menu-hover-bg);
+  color: var(--admin-menu-hover-text);
+}
+
+.admin-menu .menu-item:hover i.menu-icon {
+  color: var(--admin-menu-hover-text);
+}
+
+.admin-menu .menu-item.active,
+.admin-menu li.active > .menu-item {
+  background: var(--admin-menu-active-bg);
+  color: #fff;
+  border-radius: 8px;
+  box-shadow: var(--admin-menu-active-shadow);
+}
+
+.admin-menu .menu-item.active i.menu-icon,
+.admin-menu li.active > .menu-item i.menu-icon {
+  color: #fff;
+}
+
+/* 父级菜单（子项被激活时高亮文字，不铺底色） */
+.admin-menu li.parent-active > .menu-item {
+  color: var(--admin-menu-parent-active);
+}
+
+.admin-menu .menu-chevron {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--admin-menu-fold);
+  transition: transform 0.2s;
+}
+
+.admin-menu li.open > .menu-item .menu-chevron {
+  transform: rotate(180deg);
+}
+
+/* 子菜单（inline：32px 高、margin 4px 0、左缩进 44px） */
+.admin-submenu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: none;
+}
+
+.admin-menu li.open > .admin-submenu {
+  display: block;
+}
+
+.admin-submenu .menu-item {
+  height: 32px;
+  line-height: 32px;
+  margin: 4px 0;
+  padding-left: 44px;
+  padding-right: 20px;
+  font-size: 14px;
+}
+
+/* 折叠态 */
+.admin-sidebar.collapsed .admin-menu .menu-item {
+  padding: 0;
+  justify-content: center;
+}
+
+.admin-sidebar.collapsed .admin-menu .menu-item i.menu-icon {
+  margin-right: 0;
+}
+
+.admin-sidebar.collapsed .admin-menu .menu-item span,
+.admin-sidebar.collapsed .admin-menu .menu-chevron,
+.admin-sidebar.collapsed .admin-submenu {
+  display: none;
+}
+
+/* 折叠按钮（menu-fold） */
+.admin-sidebar .menu-fold {
+  margin: auto 10px 10px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--admin-menu-fold);
+  font-size: 13px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.admin-sidebar .menu-fold:hover {
+  background: var(--admin-menu-fold-hover-bg);
+  color: var(--admin-menu-text);
+}
+
+/* ============================================================
+   主区域（app-main：#F5F7FB，圆角 8px，与侧栏/边缘留 8px 间隙）
+   ============================================================ */
+.admin-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--admin-bg-page);
+  border-radius: var(--admin-radius-lg);
+  margin-left: var(--admin-gap-sm);
+}
+
+/* ============================================================
+   顶部 Header（无背景色，融入 #F5F7FB 整体底色，左面包屑右用户）
+   ============================================================ */
+.admin-header {
+  height: var(--admin-header-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  flex-shrink: 0;
+}
+
+/* 面包屑（Crumb.vue crumb-box：54px 高、12px、#434c59、hover #007af5、末级 #000） */
+.admin-breadcrumb {
+  display: flex;
+  align-items: center;
+  height: var(--admin-header-height);
+  font-size: 12px;
+  color: #434c59;
+  min-width: 0;
+}
+
+.admin-breadcrumb a {
+  color: #434c59;
+  text-decoration: none;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+
+.admin-breadcrumb a:hover {
+  color: #007af5;
+}
+
+.admin-breadcrumb .separator {
+  color: #c2c6cc;
+  margin: 0 8px;
+}
+
+.admin-breadcrumb .current {
+  color: #000;
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 用户区 */
+.admin-header .header-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  position: relative;
+  user-select: none;
+}
+
+.admin-header .header-user:hover {
+  background: var(--admin-bg-light);
+}
+
+.admin-header .user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--admin-primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.admin-header .user-name {
+  font-size: var(--admin-font-base);
+  color: var(--admin-text-regular);
+}
+
+.admin-header .user-chevron {
+  font-size: 10px;
+  color: var(--admin-text-secondary);
+}
+
+.admin-header .user-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  min-width: 140px;
+  background: var(--admin-bg-blank);
+  border: 1px solid var(--admin-border-light);
+  border-radius: 6px;
+  box-shadow: var(--admin-shadow-base);
+  padding: 6px;
+  display: none;
+  z-index: 100;
+}
+
+.admin-header .user-dropdown.show {
+  display: block;
+}
+
+.admin-header .user-dropdown .dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  color: var(--admin-text-regular);
+  cursor: pointer;
+}
+
+.admin-header .user-dropdown .dropdown-item:hover {
+  background: var(--admin-bg-light);
+  color: var(--admin-primary);
+}
+
+/* ============================================================
+   内容区（#F5F7FB 灰蓝底，白卡浮于其上，四周露出底色）
+   ============================================================ */
+.admin-content {
+  flex: 1;
+  overflow: auto;
+  padding: 6px var(--content-padding) var(--content-padding);
+  background: var(--admin-bg-page);
+}
+
+/* 页面白卡（common.scss .page-container：白底 radius 4px padding 20px、
+   min-height 83vh，不填满内容区，下方露出 #F5F7FB 底色） */
+.admin-page,
+.admin-content > .page-container,
+.admin-content > .page-box {
+  background: var(--admin-bg-blank);
+  border-radius: var(--admin-radius-base);
+  padding: var(--admin-gap-lg);
+  min-height: 83vh;
+}
+
+/* ============================================================
+   页面标题与区块
+   ============================================================ */
+.admin-page-title,
+.page-title {
+  font-size: var(--admin-font-lg);
+  font-weight: 500;
+  color: var(--admin-text-primary);
+  margin: 0 0 var(--admin-gap-md);
+}
+
+.admin-section,
+.section {
+  background: var(--admin-bg-blank);
+  border-radius: var(--admin-radius-sm);
+}
+
+.admin-section + .admin-section,
+.section + .section {
+  margin-top: var(--admin-gap-md);
+}
+
+.admin-section-title,
+.section-title {
+  font-size: var(--admin-font-md);
+  font-weight: 600;
+  color: var(--admin-text-primary);
+  margin-bottom: var(--admin-gap-md);
+  padding-bottom: var(--admin-gap-sm);
+  border-bottom: 1px solid var(--admin-border-light);
+}
+
+/* ============================================================
+   列表头
+   ============================================================ */
+.admin-list-header,
+.list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--admin-gap-md);
+  min-height: var(--admin-btn-height);
+}
+
+.admin-list-header-left,
+.admin-list-header-right,
+.list-header-left,
+.list-header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--admin-gap-base);
+}
+
+.admin-record-count,
+.record-count {
+  font-size: var(--admin-font-base);
+  color: var(--admin-text-secondary);
+}
+
+/* ============================================================
+   工具类
+   ============================================================ */
+.admin-flex {
+  display: flex;
+}
+
+.admin-flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-flex-center {
+  display: flex;
+  align-items: center;
+}
+
+.admin-gap-sm {
+  gap: var(--admin-gap-sm);
+}
+
+.admin-gap-base {
+  gap: var(--admin-gap-base);
+}
+
+.admin-gap-md {
+  gap: var(--admin-gap-md);
+}
+
+.admin-mt-sm {
+  margin-top: var(--admin-gap-sm);
+}
+
+.admin-mt-base {
+  margin-top: var(--admin-gap-base);
+}
+
+.admin-mt-md {
+  margin-top: var(--admin-gap-md);
+}
+
+.admin-mb-md {
+  margin-bottom: var(--admin-gap-md);
+}
+
+.admin-text-secondary {
+  color: var(--admin-text-secondary);
+}
+
+.admin-text-primary {
+  color: var(--admin-text-primary);
+}
+
+.admin-text-right {
+  text-align: right;
+}
+
+/* ============================================================
+   响应式
+   ============================================================ */
+@media (max-width: 768px) {
+  .admin-sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 1000;
+    background: var(--admin-bg-blank);
+    transform: translateX(-100%);
+    transition: transform 0.3s;
+    box-shadow: var(--admin-shadow-lg);
+  }
+
+  .admin-sidebar.open {
+    transform: translateX(0);
+  }
+
+  .admin-list-header,
+  .list-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--admin-gap-base);
+  }
+}

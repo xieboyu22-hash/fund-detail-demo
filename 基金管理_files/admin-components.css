@@ -1,0 +1,966 @@
+@import url("/assets/css/admin-vars.css");
+
+/**
+ * 通用组件 - AMS-FE 风格
+ * 按钮、表单、搜索栏、表格、分页、标签、状态点、卡片、消息提示等。
+ */
+
+/* ============================================================
+   按钮
+   ============================================================ */
+.admin-btn,
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--admin-gap-xs);
+  height: var(--admin-btn-height);
+  padding: 0 15px;
+  border-radius: var(--admin-radius-sm);
+  font-size: var(--admin-font-base);
+  font-family: inherit;
+  line-height: 1;
+  cursor: pointer;
+  border: 1px solid transparent;
+  outline: none;
+  white-space: nowrap;
+  user-select: none;
+  text-decoration: none;
+  background: var(--admin-bg-blank);
+  color: var(--admin-text-regular);
+  transition: all 0.2s;
+}
+
+.admin-btn-primary,
+.btn-primary {
+  background: var(--admin-primary);
+  color: #fff;
+  border-color: var(--admin-primary);
+}
+
+.admin-btn-primary:hover,
+.btn-primary:hover {
+  background: var(--admin-primary-hover);
+  border-color: var(--admin-primary-hover);
+}
+
+.admin-btn-primary:disabled,
+.btn-primary:disabled {
+  background: var(--admin-text-disabled);
+  border-color: var(--admin-text-disabled);
+  cursor: not-allowed;
+}
+
+.admin-btn-default,
+.btn-default {
+  background: var(--admin-bg-blank);
+  color: var(--admin-text-regular);
+  border-color: var(--admin-border);
+}
+
+.admin-btn-default:hover,
+.btn-default:hover {
+  color: var(--admin-primary);
+  border-color: var(--admin-primary);
+  background: var(--admin-primary-light);
+}
+
+.admin-btn-text,
+.btn-text,
+.link-btn {
+  color: var(--admin-primary);
+  background: transparent;
+  border-color: transparent;
+  padding: 0 8px;
+}
+
+.admin-btn-text:hover,
+.btn-text:hover,
+.link-btn:hover {
+  color: var(--admin-primary-hover);
+  text-decoration: underline;
+}
+
+.admin-btn-danger,
+.btn-danger {
+  background: var(--admin-danger-bg);
+  color: var(--admin-danger);
+  border-color: var(--admin-danger-border);
+}
+
+.admin-btn-danger:hover,
+.btn-danger:hover {
+  background: #ffccc7;
+}
+
+.admin-btn-success,
+.btn-success {
+  background: var(--admin-success-bg);
+  color: var(--admin-success);
+  border-color: var(--admin-success-border);
+}
+
+.admin-btn-warning,
+.btn-warning {
+  background: var(--admin-warning-bg);
+  color: var(--admin-warning);
+  border-color: var(--admin-warning-border);
+}
+
+.admin-btn-sm,
+.btn-sm {
+  height: 26px;
+  padding: 0 10px;
+  font-size: var(--admin-font-sm);
+}
+
+.admin-btn-lg,
+.btn-lg {
+  height: 40px;
+  padding: 0 24px;
+  font-size: var(--admin-font-md);
+}
+
+.admin-btn-block,
+.btn-block {
+  display: flex;
+  width: 100%;
+}
+
+/* ============================================================
+   搜索 / 筛选栏
+   ============================================================ */
+.admin-filter-form,
+.filter-form,
+.search-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--admin-gap-base);
+  padding-bottom: var(--admin-gap-base);
+  border-bottom: 1px solid var(--admin-border-light);
+  margin-bottom: var(--admin-gap-md);
+}
+
+.admin-filter-form .form-item,
+.filter-form .form-item,
+.search-form .form-item {
+  display: flex;
+  align-items: center;
+  gap: var(--admin-gap-sm);
+}
+
+.admin-filter-form .form-item > label,
+.filter-form .form-item > label,
+.search-form .form-item > label {
+  font-size: var(--admin-font-base);
+  color: var(--admin-text-primary);
+  white-space: nowrap;
+  line-height: var(--admin-input-height);
+}
+
+/* ============================================================
+   表单控件
+   ============================================================ */
+.admin-input,
+.admin-select,
+input[type="text"].admin-input,
+input[type="search"].admin-input,
+input[type="password"].admin-input,
+select.admin-select,
+.filter-form input,
+.search-form input,
+.filter-form select,
+.search-form select {
+  height: var(--admin-input-height);
+  padding: 0 10px;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-sm);
+  font-size: var(--admin-font-base);
+  font-family: inherit;
+  color: var(--admin-text-regular);
+  background: var(--admin-bg-blank);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  min-width: 140px;
+}
+
+.admin-input:focus,
+.admin-select:focus,
+.filter-form input:focus,
+.search-form input:focus,
+.filter-form select:focus,
+.search-form select:focus {
+  border-color: var(--admin-primary);
+  box-shadow: 0 0 0 2px var(--admin-primary-ghost);
+}
+
+.admin-input::placeholder,
+.filter-form input::placeholder,
+.search-form input::placeholder {
+  color: var(--admin-text-placeholder);
+}
+
+.admin-input:disabled,
+.admin-select:disabled,
+.filter-form input:disabled,
+.search-form input:disabled {
+  background: var(--admin-bg-light);
+  color: var(--admin-text-disabled);
+  cursor: not-allowed;
+}
+
+.admin-input {
+  width: 220px;
+}
+
+.admin-select {
+  min-width: 140px;
+  cursor: pointer;
+}
+
+.admin-textarea,
+textarea.admin-input {
+  height: auto;
+  padding: 8px 10px;
+  line-height: var(--admin-line-height);
+  min-height: 80px;
+  resize: vertical;
+}
+
+.admin-form-group {
+  margin-bottom: var(--admin-gap-md);
+}
+
+.admin-form-group label {
+  display: block;
+  margin-bottom: var(--admin-gap-xs);
+  font-size: var(--admin-font-base);
+  color: var(--admin-text-primary);
+}
+
+.admin-form-error {
+  font-size: var(--admin-font-sm);
+  color: var(--admin-danger);
+  margin-top: var(--admin-gap-xs);
+}
+
+/* ============================================================
+   表格（复刻 AMS 统一表格 / Element Plus el-table 风格）
+   ============================================================ */
+.admin-table-section,
+.table-section,
+.table-card {
+  background: var(--admin-bg-blank);
+  border-radius: var(--admin-radius-sm);
+  border: 1px solid var(--admin-border-lighter);
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.admin-table-wrapper,
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.admin-table,
+table.data-table,
+.admin-table-section table {
+  width: 100%;
+  min-width: max-content;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--admin-font-base);
+  color: var(--admin-text-regular);
+}
+
+.admin-table thead th,
+table.data-table thead th,
+.table-section thead th {
+  height: 48px;
+  padding: 0 12px;
+  text-align: left;
+  font-weight: 700;
+  font-size: var(--admin-font-sm);
+  color: var(--admin-table-header-color);
+  background: var(--admin-table-header-bg);
+  border-bottom: 1px solid var(--admin-border-lighter);
+  border-right: 1px solid var(--admin-border-lighter);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.admin-table tbody td,
+table.data-table tbody td,
+.table-section tbody td {
+  height: 48px;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--admin-border-lighter);
+  border-right: 1px solid var(--admin-border-lighter);
+  vertical-align: middle;
+  transition: background-color 0.15s;
+}
+
+/* 列边界：最后一列不需要右边框 */
+.admin-table thead th:last-child,
+.admin-table tbody td:last-child,
+table.data-table thead th:last-child,
+table.data-table tbody td:last-child,
+.table-section thead th:last-child,
+.table-section tbody td:last-child {
+  border-right: none;
+}
+
+/* 固定右侧操作列 */
+.admin-table thead th:last-child,
+table.data-table thead th:last-child,
+.table-section thead th:last-child {
+  position: sticky;
+  right: 0;
+  z-index: 3;
+  background: var(--admin-table-header-bg);
+  box-shadow: -6px 0 8px -4px rgba(0, 0, 0, 0.06);
+}
+
+.admin-table tbody td:last-child,
+table.data-table tbody td:last-child,
+.table-section tbody td:last-child {
+  position: sticky;
+  right: 0;
+  z-index: 2;
+  background: #fff;
+  box-shadow: -6px 0 8px -4px rgba(0, 0, 0, 0.06);
+}
+
+/* 斑马纹（含固定列） */
+.admin-table tbody tr:nth-child(even) td,
+table.data-table tbody tr:nth-child(even) td,
+.table-section tbody tr:nth-child(even) td {
+  background: #fafafa;
+}
+
+.admin-table tbody tr:nth-child(even) td:last-child,
+table.data-table tbody tr:nth-child(even) td:last-child,
+.table-section tbody tr:nth-child(even) td:last-child {
+  background: #fafafa;
+}
+
+/* 悬停（覆盖斑马纹，含固定列） */
+.admin-table tbody tr:hover td,
+table.data-table tbody tr:hover td,
+.table-section tbody tr:hover td {
+  background: #f5f7fa;
+}
+
+.admin-table-empty,
+.table-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--admin-text-disabled);
+  font-size: var(--admin-font-base);
+}
+
+.admin-table .actions,
+.data-table .actions {
+  display: flex;
+  align-items: center;
+  gap: var(--admin-gap-sm);
+}
+
+/* ============================================================
+   分页（复刻 Element Plus el-pagination）
+   ============================================================ */
+.admin-pagination,
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--admin-gap-sm);
+  margin-top: var(--admin-gap-md);
+  font-size: var(--admin-font-base);
+  color: var(--admin-text-regular);
+  user-select: none;
+}
+
+.admin-pagination > .pagination {
+  margin-top: 0;
+}
+
+.admin-pagination .total-info,
+.pagination .total-info {
+  color: var(--admin-text-secondary);
+  margin-right: var(--admin-gap-sm);
+}
+
+.admin-pagination .page-btn,
+.pagination .page-btn,
+.admin-pagination .page-number,
+.pagination .page-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 6px;
+  border: 1px solid var(--admin-border);
+  background: var(--admin-bg-blank);
+  color: var(--admin-text-regular);
+  border-radius: var(--admin-radius-sm);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: var(--admin-font-base);
+  line-height: 1;
+}
+
+.admin-pagination .page-btn:hover:not(:disabled),
+.pagination .page-btn:hover:not(:disabled),
+.admin-pagination .page-number:hover:not(.active),
+.pagination .page-number:hover:not(.active) {
+  border-color: var(--admin-primary);
+  color: var(--admin-primary);
+}
+
+.admin-pagination .page-btn.active,
+.pagination .page-btn.active,
+.admin-pagination .page-number.active,
+.pagination .page-number.active {
+  background: var(--admin-primary);
+  color: #fff;
+  border-color: var(--admin-primary);
+}
+
+.admin-pagination .page-btn:disabled,
+.pagination .page-btn:disabled {
+  cursor: not-allowed;
+  color: var(--admin-text-disabled);
+  border-color: var(--admin-border-light);
+  background: var(--admin-bg-light);
+}
+
+.admin-pagination .page-btn.nav,
+.pagination .page-btn.nav {
+  padding: 0 8px;
+  font-size: var(--admin-font-sm);
+}
+
+.admin-pagination .page-info,
+.pagination .page-info {
+  color: var(--admin-text-secondary);
+  padding: 0 var(--admin-gap-xs);
+}
+
+.admin-pagination .page-sizes,
+.pagination .page-sizes,
+.admin-pagination .page-jumper,
+.pagination .page-jumper {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--admin-gap-xs);
+  color: var(--admin-text-secondary);
+  font-size: var(--admin-font-base);
+}
+
+.admin-pagination .page-sizes .select,
+.pagination .page-sizes .select,
+.admin-pagination .page-jumper input,
+.pagination .page-jumper input {
+  width: 70px;
+  height: 28px;
+  padding: 0 6px;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-sm);
+  background: var(--admin-bg-blank);
+  color: var(--admin-text-regular);
+  font-size: var(--admin-font-sm);
+  outline: none;
+}
+
+.admin-pagination .page-jumper input,
+.pagination .page-jumper input {
+  width: 48px;
+  text-align: center;
+}
+
+.admin-pagination .page-sizes .select:focus,
+.pagination .page-sizes .select:focus,
+.admin-pagination .page-jumper input:focus,
+.pagination .page-jumper input:focus {
+  border-color: var(--admin-primary);
+  box-shadow: 0 0 0 2px var(--admin-primary-ghost);
+}
+
+/* ============================================================
+   标签
+   ============================================================ */
+.admin-tag,
+.tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--admin-font-sm);
+  padding: 2px 10px;
+  border-radius: var(--admin-radius-sm);
+  white-space: nowrap;
+  line-height: 1.5;
+}
+
+.admin-tag-blue,
+.tag-blue {
+  background: var(--admin-info-bg);
+  color: #096dd9;
+  border: 1px solid var(--admin-info-border);
+}
+
+.admin-tag-green,
+.tag-green {
+  background: var(--admin-success-bg);
+  color: var(--admin-success);
+  border: 1px solid var(--admin-success-border);
+}
+
+.admin-tag-orange,
+.tag-orange {
+  background: var(--admin-warning-bg);
+  color: #d48806;
+  border: 1px solid var(--admin-warning-border);
+}
+
+.admin-tag-red,
+.tag-red {
+  background: var(--admin-danger-bg);
+  color: #cf1322;
+  border: 1px solid var(--admin-danger-border);
+}
+
+.admin-tag-gray,
+.tag-gray {
+  background: #f5f5f5;
+  color: #595959;
+  border: 1px solid #d9d9d9;
+}
+
+/* ============================================================
+   弹窗 / Modal
+   ============================================================ */
+.admin-modal-mask,
+.modal-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-modal,
+.modal {
+  background: var(--admin-bg-blank);
+  border-radius: var(--admin-radius-base);
+  width: 560px;
+  max-width: calc(100vw - 48px);
+  max-height: calc(100vh - 96px);
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--admin-shadow-lg);
+}
+
+.admin-modal-lg,
+.modal-lg {
+  width: 880px;
+}
+
+.admin-modal-xl,
+.modal-xl {
+  width: 1080px;
+}
+
+.admin-modal-header,
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--admin-gap-md) var(--admin-gap-lg);
+  border-bottom: 1px solid var(--admin-border-light);
+  font-size: var(--admin-font-md);
+  font-weight: 600;
+  color: var(--admin-text-primary);
+}
+
+.admin-modal-close,
+.modal-close {
+  cursor: pointer;
+  color: var(--admin-text-secondary);
+  font-size: 18px;
+  line-height: 1;
+  border: none;
+  background: none;
+}
+
+.admin-modal-close:hover,
+.modal-close:hover {
+  color: var(--admin-text-primary);
+}
+
+.admin-modal-body,
+.modal-body {
+  padding: var(--admin-gap-lg);
+  overflow-y: auto;
+}
+
+.admin-modal-footer,
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--admin-gap-base);
+  padding: var(--admin-gap-base) var(--admin-gap-lg);
+  border-top: 1px solid var(--admin-border-light);
+}
+
+.admin-modal-overlay,
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0.2s;
+}
+
+.admin-modal-overlay.show,
+.modal-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ============================================================
+   状态点
+   ============================================================ */
+.admin-status-dot,
+.status-dot {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--admin-gap-xs);
+}
+
+.admin-status-dot::before,
+.status-dot::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.admin-status-dot.success,
+.status-dot.success {
+  color: var(--admin-success);
+}
+
+.admin-status-dot.warning,
+.status-dot.warning {
+  color: var(--admin-warning);
+}
+
+.admin-status-dot.danger,
+.status-dot.danger {
+  color: var(--admin-danger);
+}
+
+.admin-status-dot.info,
+.status-dot.info {
+  color: var(--admin-info);
+}
+
+/* ============================================================
+   卡片 / 统计卡片
+   ============================================================ */
+.admin-card,
+.card {
+  background: var(--admin-bg-blank);
+  border-radius: var(--admin-radius-sm);
+  border: 1px solid var(--admin-border-light);
+  padding: var(--admin-gap-lg);
+  transition: box-shadow 0.2s;
+}
+
+.admin-card:hover,
+.card:hover {
+  box-shadow: var(--admin-shadow-sm);
+}
+
+.admin-stat-card,
+.stat-card {
+  background: var(--admin-bg-blank);
+  border-radius: var(--admin-radius-sm);
+  padding: var(--admin-gap-lg);
+  border: 1px solid var(--admin-border-light);
+}
+
+.admin-stat-card .stat-value,
+.stat-card .stat-value {
+  font-size: var(--admin-font-xl);
+  font-weight: 600;
+  color: var(--admin-text-primary);
+  margin-top: var(--admin-gap-sm);
+}
+
+.admin-stat-card .stat-label,
+.stat-card .stat-label {
+  font-size: var(--admin-font-base);
+  color: var(--admin-text-secondary);
+}
+
+/* ============================================================
+   消息提示 / 徽章
+   ============================================================ */
+.admin-badge,
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--admin-danger);
+  color: #fff;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.admin-message,
+.message {
+  display: flex;
+  align-items: center;
+  gap: var(--admin-gap-sm);
+  padding: 10px 16px;
+  border-radius: var(--admin-radius-sm);
+  font-size: var(--admin-font-base);
+  margin-bottom: var(--admin-gap-md);
+}
+
+.admin-message-success,
+.message-success {
+  background: var(--admin-success-bg);
+  color: var(--admin-success);
+  border: 1px solid var(--admin-success-border);
+}
+
+.admin-message-warning,
+.message-warning {
+  background: var(--admin-warning-bg);
+  color: var(--admin-warning);
+  border: 1px solid var(--admin-warning-border);
+}
+
+.admin-message-error,
+.message-error {
+  background: var(--admin-danger-bg);
+  color: var(--admin-danger);
+  border: 1px solid var(--admin-danger-border);
+}
+
+.admin-message-info,
+.message-info {
+  background: var(--admin-info-bg);
+  color: var(--admin-info);
+  border: 1px solid var(--admin-info-border);
+}
+
+/* ============================================================
+   Toast 提示
+   ============================================================ */
+.toast-container {
+  position: fixed;
+  top: 72px;
+  right: var(--admin-gap-lg);
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: var(--admin-gap-sm);
+  align-items: flex-end;
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--admin-gap-sm);
+  min-width: 240px;
+  max-width: 420px;
+  padding: var(--admin-gap-base) var(--admin-gap-md);
+  border-radius: var(--admin-radius-sm);
+  font-size: var(--admin-font-base);
+  background: var(--admin-bg-blank);
+  box-shadow: var(--admin-shadow-base);
+  border: 1px solid var(--admin-border-light);
+  transition: opacity 0.25s, transform 0.25s;
+}
+
+.toast.success { color: var(--admin-success); border-color: var(--admin-success-border); }
+.toast.warning { color: var(--admin-warning); border-color: var(--admin-warning-border); }
+.toast.error { color: var(--admin-danger); border-color: var(--admin-danger-border); }
+.toast.info { color: var(--admin-info); border-color: var(--admin-info-border); }
+
+.toast i {
+  margin-top: 2px;
+  font-size: 16px;
+}
+
+.toast-content {
+  flex: 1;
+  line-height: 1.5;
+}
+
+.toast-title {
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  color: var(--admin-text-secondary);
+  cursor: pointer;
+  padding: 0;
+  margin-left: var(--admin-gap-sm);
+  font-size: 14px;
+}
+
+.toast-close:hover {
+  color: var(--admin-text-primary);
+}
+
+/* ============================================================
+   加载 / 空状态
+   ============================================================ */
+.admin-loading,
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: var(--admin-text-secondary);
+  font-size: var(--admin-font-base);
+}
+
+.admin-empty,
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--admin-text-disabled);
+}
+
+.admin-empty .empty-title,
+.empty .empty-title {
+  font-size: var(--admin-font-md);
+  color: var(--admin-text-regular);
+  margin-top: var(--admin-gap-md);
+}
+
+/* ============================================================
+   全局 Loading
+   ============================================================ */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.75);
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0.2s;
+}
+
+.loading-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.loading-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--admin-border-light);
+  border-top-color: var(--admin-primary);
+  border-radius: 50%;
+  animation: admin-spin 0.8s linear infinite;
+}
+
+.loading-text {
+  margin-top: var(--admin-gap-base);
+  color: var(--admin-text-secondary);
+  font-size: var(--admin-font-base);
+}
+
+.loading-block {
+  text-align: center;
+  padding: 48px;
+  color: var(--admin-text-secondary);
+  font-size: var(--admin-font-base);
+}
+
+.loading-block .spinner,
+.spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--admin-border-light);
+  border-top-color: var(--admin-primary);
+  border-radius: 50%;
+  animation: admin-spin 0.8s linear infinite;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+@keyframes admin-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================================
+   分隔线
+   ============================================================ */
+.admin-divider,
+.divider {
+  border: none;
+  border-top: 1px solid var(--admin-border-light);
+  margin: var(--admin-gap-md) 0;
+}
+
+/* ============================================================
+   响应式
+   ============================================================ */
+@media (max-width: 768px) {
+  .admin-filter-form,
+  .filter-form,
+  .search-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-filter-form .form-item,
+  .filter-form .form-item,
+  .search-form .form-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-input,
+  .admin-select,
+  input,
+  select {
+    width: 100%;
+  }
+
+  .admin-pagination,
+  .pagination {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
