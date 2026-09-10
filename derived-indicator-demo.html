@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>编辑指标 · 衍生指标依赖选择（演示）</title>
+<style>
+:root {
+  --admin-primary: #007af5;
+  --admin-primary-hover: #3395f7;
+  --admin-primary-light: #e6f2ff;
+  --admin-primary-pale: #f0f7ff;
+  --admin-text-primary: #111111;
+  --admin-text-regular: #434c59;
+  --admin-text-secondary: #86909c;
+  --admin-text-disabled: #c2c6cc;
+  --admin-border: #d8dce4;
+  --admin-border-light: #eaedf6;
+  --admin-bg-blank: #ffffff;
+  --admin-bg-page: #f5f7fb;
+  --admin-bg-light: #f4f7fc;
+  --admin-warning: #faad14;
+  --asset-color: #fa8c16;
+  --asset-light: #fff7e6;
+  --asset-border: #ffd591;
+  --radius: 8px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
+  background: var(--admin-bg-page);
+  color: var(--admin-text-primary);
+  font-size: 14px;
+}
+.admin-app { display: flex; height: 100vh; overflow: hidden; }
+
+/* ── 侧边栏 ── */
+.admin-sidebar {
+  width: 220px; flex-shrink: 0; background: #fff;
+  border-right: 1px solid var(--admin-border-light);
+  display: flex; flex-direction: column; overflow-y: auto;
+}
+.menu-brand {
+  display: flex; align-items: center; gap: 10px; padding: 16px;
+  font-size: 16px; font-weight: 700; color: var(--admin-text-primary);
+  border-bottom: 1px solid var(--admin-border-light);
+}
+.brand-logo {
+  width: 28px; height: 28px; border-radius: 6px;
+  background: linear-gradient(135deg, #007af5, #2f6bff);
+  display: inline-flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 13px; font-weight: 700;
+}
+.admin-menu { list-style: none; padding: 8px; }
+.menu-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 6px; cursor: pointer;
+  color: #5e6b7a; font-size: 14px; user-select: none;
+}
+.menu-item:hover { background: #e7edf7; }
+.menu-item.active { background: #2f6bff; color: #fff; box-shadow: 0 6px 14px rgba(47,107,255,.25); }
+.menu-icon { width: 16px; text-align: center; }
+.admin-submenu { list-style: none; padding-left: 26px; }
+.admin-submenu .menu-item { font-size: 13px; padding: 8px 12px; }
+.menu-chevron { margin-left: auto; font-size: 11px; color: #9aa5b3; }
+
+/* ── 主区域 ── */
+.admin-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.admin-header {
+  height: 54px; flex-shrink: 0; background: #fff;
+  border-bottom: 1px solid var(--admin-border-light);
+  display: flex; align-items: center; justify-content: space-between; padding: 0 20px;
+}
+.admin-breadcrumb { font-size: 13px; color: var(--admin-text-secondary); }
+.admin-breadcrumb .current { color: var(--admin-text-primary); font-weight: 500; }
+.admin-breadcrumb .separator { margin: 0 8px; color: var(--admin-text-disabled); }
+.header-user { display: flex; align-items: center; gap: 8px; color: var(--admin-text-regular); font-size: 13px; }
+.user-avatar {
+  width: 28px; height: 28px; border-radius: 50%; background: var(--admin-primary);
+  color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 13px;
+}
+.admin-content { flex: 1; overflow: hidden; display: flex; }
+.admin-page { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.page-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  padding: 20px 20px 0;
+}
+.page-title { font-size: 20px; font-weight: 600; }
+.page-subtitle { font-size: 13px; color: var(--admin-text-secondary); margin-top: 4px; }
+.detail-scroll-body { flex: 1; overflow-y: auto; padding: 16px 20px; }
+
+/* ── 卡片与表单 ── */
+.form-card {
+  background: #fff; border: 1px solid var(--admin-border-light);
+  border-radius: var(--radius); padding: 20px; margin-bottom: 16px;
+}
+.form-section-title { font-size: 15px; font-weight: 600; margin-bottom: 16px; padding-left: 10px; border-left: 3px solid var(--admin-primary); }
+.form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px 24px; }
+.form-field { display: flex; flex-direction: column; gap: 6px; }
+.form-field.full { grid-column: 1 / -1; }
+.f-label { font-size: 13px; color: var(--admin-text-regular); font-weight: 500; }
+.required { color: #ff4d4f; margin-left: 2px; }
+.f-tip { font-size: 12px; color: var(--admin-text-secondary); line-height: 1.6; }
+.input, .select, .textarea {
+  border: 1px solid var(--admin-border); border-radius: 6px; padding: 8px 12px;
+  font-size: 13px; color: var(--admin-text-primary); background: #fff; outline: none;
+  font-family: inherit; transition: border-color .15s;
+}
+.input:focus, .select:focus, .textarea:focus { border-color: var(--admin-primary); }
+.input:disabled, .select:disabled { background: var(--admin-bg-light); color: var(--admin-text-secondary); }
+.textarea { resize: vertical; min-height: 72px; font-family: Consolas, Monaco, monospace; }
+
+.btn {
+  border: 1px solid var(--admin-border); background: #fff; color: var(--admin-text-regular);
+  padding: 8px 20px; border-radius: 6px; font-size: 13px; cursor: pointer; transition: all .15s;
+}
+.btn:hover { border-color: var(--admin-primary); color: var(--admin-primary); }
+.btn-primary { background: var(--admin-primary); border-color: var(--admin-primary); color: #fff; }
+.btn-primary:hover { background: var(--admin-primary-hover); }
+.btn-sm { padding: 4px 12px; font-size: 12px; }
+.form-actions-bar {
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 12px;
+  padding: 12px 20px; border-top: 1px solid var(--admin-border-light); background: #fff;
+}
+
+/* ══════════════════════════════════════════════
+   依赖指标选择面板（新设计：全量指标 + 基金/资产分类）
+   ══════════════════════════════════════════════ */
+.dep-picker {
+  border: 1px solid var(--admin-border-light); border-radius: 8px;
+  background: #fff; overflow: hidden;
+}
+/* 两大分类卡片：基金指标 / 资产指标 */
+.dep-scope-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+  align-items: start;
+}
+.dep-scope-card { min-width: 0; display: flex; flex-direction: column; }
+.dep-scope-card + .dep-scope-card { border-left: 1px solid var(--admin-border-light); }
+
+.dep-scope-head {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 16px; border-bottom: 1px solid var(--admin-border-light);
+}
+.dep-scope-title { font-size: 14px; font-weight: 600; }
+.dep-scope-count { font-size: 12px; color: var(--admin-text-secondary); }
+.scope-tag {
+  font-size: 11px; padding: 1px 8px; border-radius: 4px; font-weight: 600; letter-spacing: .5px;
+}
+.scope-tag-fund { color: var(--admin-primary); background: var(--admin-primary-light); }
+.scope-tag-asset { color: var(--asset-color); background: var(--asset-light); border: 1px solid var(--asset-border); }
+
+/* 资产指标卡：聚合计算提示条 */
+.agg-hint {
+  margin: 10px 14px 0; padding: 10px 12px;
+  background: var(--admin-primary-light); border: 1px solid #91caff;
+  border-radius: 6px; font-size: 12px; color: #0050b3; line-height: 1.7;
+}
+.agg-hint-title { font-weight: 700; display: flex; align-items: center; gap: 6px; }
+.agg-fns { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.agg-fn {
+  font-family: Consolas, Monaco, monospace; font-size: 11px; font-weight: 700;
+  background: #fff; border: 1px solid #91caff; color: var(--admin-primary);
+  border-radius: 4px; padding: 1px 7px;
+}
+.agg-example {
+  margin-top: 6px; font-family: Consolas, Monaco, monospace; font-size: 11px;
+  background: rgba(255,255,255,.7); border-radius: 4px; padding: 3px 8px; display: inline-block;
+}
+
+.dep-scope-body { padding: 6px 0 12px; }
+.dep-category { padding: 4px 16px 8px; }
+.dep-category-name {
+  font-size: 12px; color: var(--admin-text-secondary); padding: 8px 0 6px;
+  border-bottom: 1px dashed var(--admin-border-light); margin-bottom: 4px;
+  display: flex; justify-content: space-between;
+}
+.dep-item {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; padding: 5px 0; border-radius: 4px;
+}
+.dep-item label {
+  display: flex; align-items: center; gap: 7px; min-width: 0;
+  font-size: 13px; color: var(--admin-text-regular); cursor: pointer; flex-shrink: 0;
+}
+.dep-item label input { accent-color: var(--admin-primary); cursor: pointer; }
+.dep-unit {
+  font-size: 11px; color: var(--admin-text-secondary); background: var(--admin-bg-light);
+  border-radius: 3px; padding: 0 5px; white-space: nowrap;
+}
+.dep-item-right { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.dep-code {
+  font-family: Consolas, Monaco, monospace; font-size: 12px;
+  color: var(--admin-text-secondary); white-space: nowrap; cursor: pointer;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.dep-code:hover { color: var(--admin-primary); text-decoration: underline; }
+.dep-code.var-asset { color: #ad5a00; }
+.dep-code.var-asset:hover { color: var(--asset-color); }
+
+/* 聚合方式选择器（资产指标勾选后激活） */
+.agg-select {
+  border: 1px solid var(--asset-border); background: var(--asset-light); color: #ad5a00;
+  border-radius: 4px; font-size: 11px; font-weight: 700; padding: 2px 4px;
+  font-family: Consolas, Monaco, monospace; cursor: pointer; outline: none;
+}
+.agg-select:disabled {
+  border-color: var(--admin-border-light); background: var(--admin-bg-light);
+  color: var(--admin-text-disabled); cursor: not-allowed;
+}
+.agg-na { font-size: 11px; color: var(--admin-text-disabled); white-space: nowrap; }
+
+/* 已选依赖汇总条 */
+.dep-selected-bar { border-top: 1px solid var(--admin-border-light); background: var(--admin-primary-pale); }
+.dep-selected-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 16px 4px; font-size: 12px; color: var(--admin-text-secondary);
+}
+.dep-selected-head b { color: var(--admin-text-primary); }
+.dep-clear { cursor: pointer; color: var(--admin-primary); }
+.dep-chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 16px 12px; }
+.dep-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  border-radius: 5px; padding: 4px 8px; font-size: 12px; cursor: pointer;
+  border: 1px solid transparent; transition: all .15s;
+}
+.dep-chip-fund { background: var(--admin-primary-light); border-color: #91caff; color: #0050b3; }
+.dep-chip-fund:hover { background: #d0e8ff; }
+.dep-chip-asset { background: var(--asset-light); border-color: var(--asset-border); color: #ad5a00; }
+.dep-chip-asset:hover { background: #ffefd6; }
+.dep-chip code { font-family: Consolas, Monaco, monospace; font-weight: 600; }
+.dep-chip .chip-name { opacity: .75; }
+.dep-chip .chip-remove { font-weight: 700; opacity: .5; padding-left: 2px; }
+.dep-chip .chip-remove:hover { opacity: 1; }
+.dep-chips-empty { font-size: 12px; color: var(--admin-text-disabled); padding: 4px 16px 12px; }
+
+/* 表达式工具行 */
+.expr-toolbar { display: flex; gap: 8px; align-items: center; }
+
+/* Toast */
+.toast {
+  position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,.78); color: #fff; padding: 10px 20px;
+  border-radius: 6px; font-size: 13px; z-index: 9999; opacity: 0;
+  transition: opacity .25s; pointer-events: none; max-width: 70%;
+}
+.toast.show { opacity: 1; }
+
+@media (max-width: 1100px) {
+  .dep-scope-grid { grid-template-columns: 1fr; }
+  .dep-scope-card + .dep-scope-card { border-left: none; border-top: 1px solid var(--admin-border-light); }
+  .form-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+<div class="admin-app">
+  <!-- 侧边栏 -->
+  <aside class="admin-sidebar">
+    <div class="menu-brand"><span class="brand-logo">资</span><span>资管云 Agent</span></div>
+    <ul class="admin-menu">
+      <li><div class="menu-item"><span class="menu-icon">⌂</span><span>首页</span></div></li>
+      <li><div class="menu-item"><span class="menu-icon">💬</span><span>AI 智能对话</span></div></li>
+      <li><div class="menu-item"><span class="menu-icon">◔</span><span>市场发行概览</span></div></li>
+      <li>
+        <div class="menu-item"><span class="menu-icon">🏙</span><span>Reits管理</span><span class="menu-chevron">▾</span></div>
+        <ul class="admin-submenu">
+          <li><div class="menu-item">指标分组</div></li>
+          <li><div class="menu-item active">指标定义</div></li>
+          <li><div class="menu-item">提示词模板</div></li>
+          <li><div class="menu-item">文档分类</div></li>
+          <li><div class="menu-item">原始文档</div></li>
+        </ul>
+      </li>
+      <li><div class="menu-item"><span class="menu-icon">📈</span><span>经营数据管理</span><span class="menu-chevron">▸</span></div></li>
+      <li><div class="menu-item"><span class="menu-icon">⚙</span><span>系统管理</span><span class="menu-chevron">▸</span></div></li>
+    </ul>
+  </aside>
+
+  <!-- 主区域 -->
+  <div class="admin-main">
+    <header class="admin-header">
+      <nav class="admin-breadcrumb">首页<span class="separator">/</span>Reits管理<span class="separator">/</span>指标定义<span class="separator">/</span><span class="current">编辑指标</span></nav>
+      <div class="header-user"><span class="user-avatar">A</span><span>admin</span></div>
+    </header>
+
+    <main class="admin-content">
+      <div class="admin-page">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">编辑指标 <span style="font-size:12px;font-weight:600;color:var(--admin-primary);background:var(--admin-primary-light);border-radius:4px;padding:2px 8px;vertical-align:middle;">衍生指标</span></h2>
+            <div class="page-subtitle">衍生指标通过「依赖指标 + 计算表达式」定义；依赖指标全量列出，按基金指标 / 资产指标分类，资产级指标支持跨资产聚合计算</div>
+          </div>
+          <button class="btn" onclick="toast('演示页面：返回列表')">返回</button>
+        </div>
+
+        <div class="detail-scroll-body">
+          <!-- 基础信息 -->
+          <div class="form-card">
+            <div class="form-section-title">基础信息</div>
+            <div class="form-grid">
+              <div class="form-field">
+                <span class="f-label">指标编码<span class="required">*</span></span>
+                <input class="input" value="avg_occupancy_rate" disabled>
+              </div>
+              <div class="form-field">
+                <span class="f-label">指标名称<span class="required">*</span></span>
+                <input class="input" value="平均出租率（资产加权）">
+              </div>
+              <div class="form-field">
+                <span class="f-label">指标类型<span class="required">*</span></span>
+                <select class="select" disabled><option>基础指标</option><option selected>衍生指标</option></select>
+              </div>
+              <div class="form-field">
+                <span class="f-label">归属范围<span class="required">*</span></span>
+                <select class="select"><option selected>基金级</option><option>资产级</option><option>通用</option></select>
+              </div>
+              <div class="form-field">
+                <span class="f-label">值类型</span>
+                <select class="select"><option>文本</option><option selected>数值</option><option>整数</option><option>日期</option></select>
+              </div>
+              <div class="form-field">
+                <span class="f-label">值单位</span>
+                <select class="select"><option>无</option><option>亿元</option><option>元</option><option>平方米</option><option selected>%</option></select>
+              </div>
+            </div>
+          </div>
+
+          <!-- 计算规则配置 -->
+          <div class="form-card">
+            <div class="form-section-title">计算规则配置</div>
+            <div class="form-grid">
+              <div class="form-field full">
+                <span class="f-label">依赖指标<span class="required">*</span></span>
+                <div class="dep-picker">
+                  <!-- 两大分类卡片 -->
+                  <div class="dep-scope-grid">
+                    <!-- 基金指标 -->
+                    <div class="dep-scope-card">
+                      <div class="dep-scope-head">
+                        <span class="dep-scope-title">基金指标</span>
+                        <span class="scope-tag scope-tag-fund">FUND</span>
+                        <span class="dep-scope-count" id="fundCount"></span>
+                      </div>
+                      <div class="dep-scope-body" id="fundBody"></div>
+                    </div>
+
+                    <!-- 资产指标（支持聚合计算） -->
+                    <div class="dep-scope-card">
+                      <div class="dep-scope-head">
+                        <span class="dep-scope-title">资产指标</span>
+                        <span class="scope-tag scope-tag-asset">ASSET</span>
+                        <span class="dep-scope-count" id="assetCount"></span>
+                      </div>
+                      <!-- 聚合计算提示 -->
+                      <div class="agg-hint">
+                        <div class="agg-hint-title">∑ 资产级指标支持聚合计算</div>
+                        <div>勾选的资产指标将对当前基金<span id="aggAssetScope">全部底层资产</span>按所选聚合方式计算后再参与表达式：</div>
+                        <div class="agg-fns">
+                          <span class="agg-fn">SUM 求和</span>
+                          <span class="agg-fn">AVG 平均</span>
+                          <span class="agg-fn">MAX 最大</span>
+                          <span class="agg-fn">MIN 最小</span>
+                          <span class="agg-fn">COUNT 计数</span>
+                        </div>
+                        <div class="agg-example">示例：AVG(asset_occupancy_rate) → 各底层资产出租率的平均值</div>
+                      </div>
+                      <div class="dep-scope-body" id="assetBody"></div>
+                    </div>
+                  </div>
+
+                  <!-- 已选依赖 -->
+                  <div class="dep-selected-bar">
+                    <div class="dep-selected-head">
+                      <span>已选依赖 <b id="selCount">0</b> 项（点击 chip 插入表达式，× 移除）</span>
+                      <span class="dep-clear" onclick="clearSelection()">清空</span>
+                    </div>
+                    <div id="selChips"></div>
+                  </div>
+                </div>
+                <span class="f-tip">基金级选项变量名即指标编码（如 raise_scale）；资产级选项变量名为「聚合函数(asset_指标编码)」（如 AVG(asset_occupancy_rate)），保存后按拓扑顺序自动触发计算</span>
+              </div>
+
+              <div class="form-field full">
+                <span class="f-label">计算表达式<span class="required">*</span></span>
+                <textarea class="textarea" id="deriveExpression" placeholder="如 AVG(asset_occupancy_rate) * 100 或 SUM(asset_noi_actual) / raise_scale"></textarea>
+                <div class="expr-toolbar">
+                  <button type="button" class="btn btn-sm" onclick="validateExpr()">校验表达式</button>
+                  <button type="button" class="btn btn-sm" onclick="document.getElementById('deriveExpression').value=''">清空</button>
+                  <span class="f-tip" id="exprTip">变量名即已选依赖的变量名，支持四则运算与常用函数；计算引擎固定使用 QLExpress</span>
+                </div>
+              </div>
+
+              <div class="form-field">
+                <span class="f-label">计算规则状态</span>
+                <select class="select"><option selected>生效中</option><option>已废弃</option></select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions-bar">
+          <button class="btn" onclick="toast('演示页面：取消')">取消</button>
+          <button class="btn btn-primary" onclick="save()">保存</button>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══════════ 数据模型（与指标定义库全量一致） ═══════════ */
+var AGG_FNS = ['SUM', 'AVG', 'MAX', 'MIN', 'COUNT'];
+
+var FUND_GROUPS = [
+  { name: '基本面指标', items: [
+    { key: 'fund_duration_years', name: '基金存续期限', unit: '年' },
+    { key: 'biz_type', name: '不动产项目业态', unit: '文本' },
+    { key: 'valuation', name: '不动产项目估值', unit: '亿元' },
+    { key: 'original_owner', name: '原始权益人', unit: '文本' },
+    { key: 'fund_manager', name: '基金管理人', unit: '文本' },
+    { key: 'is_derecognized', name: '是否出表', unit: '文本' }
+  ]},
+  { name: '发行指标', items: [
+    { key: 'raise_scale', name: '预计募集规模', unit: '亿元' },
+    { key: 'shares', name: '预计基金募集份额', unit: '亿份' },
+    { key: 'price_range_low', name: '询价区间下限', unit: '元/份' },
+    { key: 'price_range_high', name: '询价区间上限', unit: '元/份' },
+    { key: 'final_price', name: '发售价格', unit: '元/份' },
+    { key: 'issue_shares', name: '发行份额', unit: '亿份' },
+    { key: 'approved_shares', name: '证监会批复募集份额', unit: '亿份' },
+    { key: 'sponsor_placement_ratio', name: '原始权益人战配比例', unit: '%' },
+    { key: 'strategic_placement_ratio', name: '战略配售比例', unit: '%' }
+  ]},
+  { name: '运营指标', items: [
+    { key: 'distribution_ratio', name: '可分配金额比例', unit: '%' },
+    { key: 'management_fee_rate', name: '管理费率', unit: '%' },
+    { key: 'distribution_frequency', name: '收益分配频率', unit: '次' },
+    { key: 'custody_fee_rate', name: '年度托管费率', unit: '%' }
+  ]},
+  { name: '财务指标', items: [
+    { key: 'cap_rate', name: '首年CapRate', unit: '%' },
+    { key: 'cap_rate2', name: '第二年CapRate', unit: '%' },
+    { key: 'cash_flow_rate1', name: '首年净现金流分派率', unit: '%' },
+    { key: 'cash_flow_rate2', name: '第二年净现金流分派率', unit: '%' }
+  ]},
+  { name: '未分组', items: [
+    { key: 'noi_reits_y1', name: '基金首年NOI', unit: '亿元' },
+    { key: 'noi_reits_y2', name: '基金第二年NOI', unit: '亿元' }
+  ]}
+];
+
+/* numeric=false 的指标不支持聚合；defaultAgg 为勾选后的默认聚合方式 */
+var ASSET_GROUPS = [
+  { name: '资产概况', items: [
+    { key: 'built_area', name: '建筑面积', unit: '㎡', numeric: true, defaultAgg: 'SUM' },
+    { key: 'lettable_area', name: '可租赁面积', unit: '㎡', numeric: true, defaultAgg: 'SUM' },
+    { key: 'asset_valuation', name: '资产估值', unit: '亿元', numeric: true, defaultAgg: 'SUM' },
+    { key: 'sub_asset_type', name: '细分业态类型', unit: '文本', numeric: false },
+    { key: 'land_remaining_years', name: '土地剩余年限', unit: '年', numeric: true, defaultAgg: 'AVG' }
+  ]},
+  { name: '估值参数', items: [
+    { key: 'cap_rate_y1', name: 'CapRate（首年资本化率）', unit: '%', numeric: true, defaultAgg: 'AVG' },
+    { key: 'cap_rate_y2', name: 'CapRate2（第二年资本化率）', unit: '%', numeric: true, defaultAgg: 'AVG' },
+    { key: 'cap_rate_inc_capex', name: 'CapRate（加回资本性支出）', unit: '%', numeric: true, defaultAgg: 'AVG' },
+    { key: 'cap_rate2_inc_capex', name: 'CapRate2（第二年加回资本性支出）', unit: '%', numeric: true, defaultAgg: 'AVG' },
+    { key: 'discount_rate', name: '折现率', unit: '%', numeric: true, defaultAgg: 'AVG' }
+  ]},
+  { name: '经营表现', items: [
+    { key: 'noi_actual', name: 'NOI（最近年度实际值）', unit: '亿元', numeric: true, defaultAgg: 'SUM' },
+    { key: 'noi_margin_actual', name: 'NOI Margin（最近年度实际值）', unit: '%', numeric: true, defaultAgg: 'AVG' },
+    { key: 'occupancy_rate', name: '出租率（时点/年末）', unit: '%', numeric: true, defaultAgg: 'AVG' },
+    { key: 'avg_rent_per_sqm_month', name: '平均租金单价', unit: '元/㎡/月', numeric: true, defaultAgg: 'AVG' },
+    { key: 'renewal_rate', name: '续租率', unit: '%', numeric: true, defaultAgg: 'AVG' }
+  ]},
+  { name: '租户与租约指标', items: [
+    { key: 'top10_tenants_pct', name: '前十大租户占比', unit: '%', numeric: true, defaultAgg: 'AVG' },
+    { key: 'max_tenant_pct', name: '最大单一租户占比', unit: '%', numeric: true, defaultAgg: 'MAX' },
+    { key: 'wale', name: 'WALE（加权平均剩余租期）', unit: '年', numeric: true, defaultAgg: 'AVG' },
+    { key: 'expiry_1yr_pct', name: '到期结构（1年内）', unit: '%', numeric: true, defaultAgg: 'AVG' }
+  ]},
+  { name: '预测指标', items: [
+    { key: 'noi_forecast_y1', name: '预测NOI（首年）', unit: '亿元', numeric: true, defaultAgg: 'SUM' },
+    { key: 'noi_forecast_y2', name: '预测NOI（第二年）', unit: '亿元', numeric: true, defaultAgg: 'SUM' },
+    { key: 'occupancy_rate_forecast', name: '预测出租率（首年）', unit: '%', numeric: true, defaultAgg: 'AVG' }
+  ]}
+];
+
+var FUNDS = [
+  { id: 38, name: '中金普洛斯仓储物流封闭式基础设施证券投资基金', assets: ['普洛斯广州保税物流园', '普洛斯北京空港物流园', '普洛斯通州光机电物流园', '普洛斯增城物流园', '普洛斯顺德物流园', '苏州望亭普洛斯物流园', '普洛斯淀山湖物流园'] },
+  { id: 39, name: '博时招商蛇口产业园封闭式基础设施证券投资基金', assets: ['万融大厦', '万海大厦'] },
+  { id: 43, name: '华安张江光大园封闭式基础设施证券投资基金', assets: ['张江光大园'] },
+  { id: 47, name: '富国首创水务封闭式基础设施证券投资基金', assets: ['深圳首创水务有限责任公司', '合肥首创水务有限责任公司'] },
+  { id: 50, name: '红土创新盐田港仓储物流封闭式基础设施证券投资基金', assets: ['盐田港现代物流中心'] },
+  { id: 1, name: '中金唯品会封闭式商业不动产证券投资基金', assets: ['唯品会广州琶洲总部大楼'] }
+];
+
+/* ═══════════ 状态 ═══════════ */
+var selected = {}; // varKey -> { scope:'fund'|'asset', key, name, agg, numeric }
+
+function fundVar(item) { return item.key; }
+function assetVar(item, agg) { return agg + '(asset_' + item.key + ')'; }
+
+/* ═══════════ 渲染 ═══════════ */
+function renderAssetScope() {
+  document.getElementById('aggAssetScope').innerHTML = ' <b>' + FUNDS[0].assets.length + ' 个底层资产</b> ';
+}
+
+function renderGroups() {
+  var fundHtml = '', fCount = 0;
+  FUND_GROUPS.forEach(function (g) {
+    fCount += g.items.length;
+    fundHtml += '<div class="dep-category"><div class="dep-category-name"><span>' + g.name + '</span><span>' + g.items.length + '</span></div>';
+    g.items.forEach(function (it) {
+      var v = fundVar(it);
+      fundHtml += '<div class="dep-item">' +
+        '<label><input type="checkbox" data-scope="fund" data-key="' + it.key + '"' + (selected[v] ? ' checked' : '') + '><span>' + it.name + '</span><span class="dep-unit">' + it.unit + '</span></label>' +
+        '<div class="dep-item-right"><span class="dep-code" title="点击复制变量名" onclick="copyVar(\'' + v + '\')">' + v + '</span></div></div>';
+    });
+    fundHtml += '</div>';
+  });
+  document.getElementById('fundBody').innerHTML = fundHtml;
+  document.getElementById('fundCount').textContent = '共 ' + fCount + ' 项';
+
+  var assetHtml = '', aCount = 0;
+  ASSET_GROUPS.forEach(function (g) {
+    aCount += g.items.length;
+    assetHtml += '<div class="dep-category"><div class="dep-category-name"><span>' + g.name + '</span><span>' + g.items.length + '</span></div>';
+    g.items.forEach(function (it) {
+      var cur = findSelectedAsset(it.key);
+      var agg = cur ? cur.agg : (it.defaultAgg || 'SUM');
+      var varName = it.numeric ? assetVar(it, agg) : 'asset_' + it.key;
+      var aggCtl = it.numeric
+        ? '<select class="agg-select" data-key="' + it.key + '"' + (cur ? '' : ' disabled') + '>' +
+            AGG_FNS.map(function (fn) { return '<option' + (fn === agg ? ' selected' : '') + '>' + fn + '</option>'; }).join('') + '</select>'
+        : '<span class="agg-na">非数值·不聚合</span>';
+      assetHtml += '<div class="dep-item">' +
+        '<label><input type="checkbox" data-scope="asset" data-key="' + it.key + '"' + (cur ? ' checked' : '') + '><span>' + it.name + '</span><span class="dep-unit">' + it.unit + '</span></label>' +
+        '<div class="dep-item-right">' + aggCtl +
+        '<span class="dep-code var-asset" id="code_' + it.key + '" title="点击复制变量名" onclick="copyVar(this.textContent)">' + varName + '</span></div></div>';
+    });
+    assetHtml += '</div>';
+  });
+  document.getElementById('assetBody').innerHTML = assetHtml;
+  document.getElementById('assetCount').textContent = '共 ' + aCount + ' 项';
+
+  bindEvents();
+}
+
+function findSelectedAsset(key) {
+  var found = null;
+  Object.keys(selected).forEach(function (v) {
+    if (selected[v].scope === 'asset' && selected[v].key === key) found = selected[v];
+  });
+  return found;
+}
+
+function assetItem(key) {
+  var item = null;
+  ASSET_GROUPS.forEach(function (g) { g.items.forEach(function (it) { if (it.key === key) item = it; }); });
+  return item;
+}
+function fundItem(key) {
+  var item = null;
+  FUND_GROUPS.forEach(function (g) { g.items.forEach(function (it) { if (it.key === key) item = it; }); });
+  return item;
+}
+
+/* ═══════════ 事件 ═══════════ */
+function bindEvents() {
+  document.querySelectorAll('input[data-scope]').forEach(function (cb) {
+    cb.onchange = function () {
+      var scope = cb.dataset.scope, key = cb.dataset.key;
+      if (scope === 'fund') {
+        var it = fundItem(key), v = fundVar(it);
+        if (cb.checked) selected[v] = { scope: 'fund', key: key, name: it.name };
+        else delete selected[v];
+      } else {
+        var item = assetItem(key);
+        var aggSel = document.querySelector('.agg-select[data-key="' + key + '"]');
+        if (cb.checked) {
+          var agg = item.numeric ? (aggSel ? aggSel.value : item.defaultAgg) : null;
+          if (aggSel) aggSel.disabled = false;
+          selected[assetVar(item, agg || '')] = { scope: 'asset', key: key, name: item.name, agg: agg, numeric: item.numeric };
+        } else {
+          if (aggSel) aggSel.disabled = true;
+          Object.keys(selected).forEach(function (v) {
+            if (selected[v].scope === 'asset' && selected[v].key === key) delete selected[v];
+          });
+        }
+      }
+      refreshAssetCodes();
+      renderSelected();
+    };
+  });
+
+  document.querySelectorAll('.agg-select').forEach(function (sel) {
+    sel.onchange = function () {
+      var key = sel.dataset.key, item = assetItem(key);
+      // 聚合方式变化 → 替换旧变量
+      Object.keys(selected).forEach(function (v) {
+        if (selected[v].scope === 'asset' && selected[v].key === key) delete selected[v];
+      });
+      selected[assetVar(item, sel.value)] = { scope: 'asset', key: key, name: item.name, agg: sel.value, numeric: true };
+      refreshAssetCodes();
+      renderSelected();
+    };
+  });
+}
+
+function refreshAssetCodes() {
+  ASSET_GROUPS.forEach(function (g) {
+    g.items.forEach(function (it) {
+      var el = document.getElementById('code_' + it.key);
+      if (!el) return;
+      var cur = findSelectedAsset(it.key);
+      if (it.numeric) {
+        var aggSel = document.querySelector('.agg-select[data-key="' + it.key + '"]');
+        el.textContent = assetVar(it, cur ? cur.agg : (aggSel ? aggSel.value : it.defaultAgg));
+      }
+    });
+  });
+}
+
+function renderSelected() {
+  var box = document.getElementById('selChips');
+  var keys = Object.keys(selected);
+  document.getElementById('selCount').textContent = keys.length;
+  if (!keys.length) {
+    box.innerHTML = '<div class="dep-chips-empty">暂未选择依赖指标</div>';
+    return;
+  }
+  box.innerHTML = '<div class="dep-chips">' + keys.map(function (v) {
+    var s = selected[v];
+    var cls = s.scope === 'fund' ? 'dep-chip-fund' : 'dep-chip-asset';
+    var label = s.scope === 'asset' && !s.numeric ? v : v;
+    return '<span class="dep-chip ' + cls + '" title="点击插入表达式" onclick="insertExpr(\'' + v + '\')">' +
+      '<code>' + label + '</code><span class="chip-name">' + s.name + '</span>' +
+      '<span class="chip-remove" onclick="event.stopPropagation();removeVar(\'' + v + '\')">×</span></span>';
+  }).join('') + '</div>';
+}
+
+function removeVar(v) {
+  var s = selected[v];
+  delete selected[v];
+  if (s) {
+    var cb = document.querySelector('input[data-scope="' + s.scope + '"][data-key="' + s.key + '"]');
+    if (cb) cb.checked = false;
+    if (s.scope === 'asset') {
+      var aggSel = document.querySelector('.agg-select[data-key="' + s.key + '"]');
+      if (aggSel) aggSel.disabled = true;
+    }
+  }
+  renderSelected();
+}
+
+function clearSelection() {
+  selected = {};
+  document.querySelectorAll('input[data-scope]').forEach(function (cb) { cb.checked = false; });
+  document.querySelectorAll('.agg-select').forEach(function (s) { s.disabled = true; });
+  renderSelected();
+}
+
+/* ═══════════ 表达式 ═══════════ */
+function insertExpr(v) {
+  var ta = document.getElementById('deriveExpression');
+  var start = ta.selectionStart || ta.value.length;
+  var end = ta.selectionEnd || ta.value.length;
+  ta.value = ta.value.slice(0, start) + v + ta.value.slice(end);
+  ta.focus();
+  ta.selectionStart = ta.selectionEnd = start + v.length;
+}
+
+function validateExpr() {
+  var expr = document.getElementById('deriveExpression').trim();
+  if (!expr) { toast('请输入计算表达式'); return; }
+  var unknown = [];
+  Object.keys(selected).length; // 校验所选依赖是否在表达式中出现
+  var missing = Object.keys(selected).filter(function (v) { return expr.indexOf(v) === -1; });
+  if (missing.length) { toast('已选依赖未在表达式中使用：' + missing.join('、')); return; }
+  toast('表达式校验通过（演示）');
+}
+
+function copyVar(v) {
+  var done = function () { toast('已复制变量名：' + v); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(v).then(done);
+  else {
+    var t = document.createElement('textarea');
+    t.value = v; document.body.appendChild(t); t.select();
+    document.execCommand('copy'); document.body.removeChild(t); done();
+  }
+}
+
+function save() {
+  var n = Object.keys(selected).length;
+  var expr = document.getElementById('deriveExpression').trim();
+  if (!n) { toast('请至少选择 1 个依赖指标'); return; }
+  if (!expr) { toast('请输入计算表达式'); return; }
+  toast('保存成功（演示）：' + n + ' 个依赖，保存后将按拓扑顺序自动触发计算');
+}
+
+var toastTimer = null;
+function toast(msg) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function () { el.classList.remove('show'); }, 2400);
+}
+
+/* ═══════════ 初始化 ═══════════ */
+renderAssetScope();
+renderGroups();
+renderSelected();
+
+/* 预置一个演示选择，打开页面即可看到聚合效果 */
+(function preset() {
+  var checks = document.querySelectorAll('input[data-scope="asset"][data-key="occupancy_rate"], input[data-scope="asset"][data-key="noi_actual"], input[data-scope="fund"][data-key="raise_scale"]');
+  checks.forEach(function (cb) { cb.checked = true; cb.onchange(); });
+})();
+</script>
+</body>
+</html>
