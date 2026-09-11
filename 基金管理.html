@@ -168,6 +168,12 @@
     .admin-filter-form .form-item.type-tags-item > .type-tags { grid-column: 1; }
   }
 
+  /* ===== 关键词 / 已选条件：与标签筛选行同列对齐（60px 标签列 + 8px 间距） ===== */
+  .admin-filter-form .form-item.kw-item > .label {
+    width: 60px;
+    flex-shrink: 0;
+    text-align: left;
+  }
   /* ===== 已选标签回显 ===== */
   .filter-tags {
     flex-basis: 100%;
@@ -176,7 +182,13 @@
     align-items: center;
     gap: 6px;
   }
-  .filter-tags .ft-label { font-size: var(--admin-font-sm, 12px); color: var(--admin-text-secondary); margin-right: 2px; }
+  .filter-tags .ft-label {
+    font-size: var(--admin-font-sm, 12px);
+    color: var(--admin-text-secondary);
+    width: 60px;
+    flex-shrink: 0;
+    margin-right: 2px; /* 6px gap + 2px = 与标签行 8px 间距一致 */
+  }
   .ftag {
     display: inline-flex; align-items: center; gap: 6px;
     background: var(--admin-primary-light);
@@ -277,7 +289,7 @@
           <span class="type-tag" data-value="综合市场">综合市场</span>
         </div>
       </div>
-      <div class="form-item">
+      <div class="form-item kw-item">
         <span class="label">关键词</span>
         <input class="admin-input" id="keyword" placeholder="基金名称 / 简称 / 代码">
       </div>
