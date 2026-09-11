@@ -1332,7 +1332,7 @@ loadOverview().catch(function () { R2.toast('加载基金指标失败', 'error')
     var cat = categoryOf(bizType);
     var td = document.createElement('td');
     td.innerHTML = cat
-      ? '<span class="admin-tag ' + (cat === '基础设施' ? 'admin-tag-blue' : 'admin-tag-green') + '">' + cat + '</span>'
+      ? cat
       : '<span style="color:var(--text-disabled)">—</span>';
     tr.insertBefore(td, tr.children[3]); /* 基金代码之后 */
   });
