@@ -116,7 +116,7 @@
   .admin-filter-form .form-item.type-tags-item {
     flex-basis: 100%;
     display: grid;
-    grid-template-columns: 52px minmax(0, 1fr);
+    grid-template-columns: 60px minmax(0, 1fr);
     column-gap: var(--admin-gap-sm);
     align-items: start;
   }
@@ -246,6 +246,14 @@
           <span class="type-tag active" data-value="">全部</span>
           <span class="type-tag" data-value="上交所">上交所</span>
           <span class="type-tag" data-value="深交所">深交所</span>
+        </div>
+      </div>
+      <div class="form-item type-tags-item">
+        <span class="label">资产类别</span>
+        <div class="type-tags" id="categoryTags">
+          <span class="type-tag active" data-value="">全部</span>
+          <span class="type-tag" data-value="基础设施">基础设施</span>
+          <span class="type-tag" data-value="商业不动产">商业不动产</span>
         </div>
       </div>
       <div class="form-item type-tags-item">
@@ -1327,7 +1335,7 @@ loadOverview().catch(function () { R2.toast('加载基金指标失败', 'error')
   /* 标签选择：业态 = 多选；阶段 / 交易所 = 单选 */
   var $ = function (id) { return document.getElementById(id); };
   var typeTagsEl = $('typeTags'), stageTagsEl = $('stageTags'), exchangeTagsEl = $('exchangeTags'),
-      tagsWrap = $('filterTags');
+      categoryTagsEl = $('categoryTags'), tagsWrap = $('filterTags');
   var allTag = typeTagsEl.querySelector('.type-tag[data-value=""]');
 
   function checkedTypes() {
@@ -1388,6 +1396,18 @@ loadOverview().catch(function () { R2.toast('加载基金指标失败', 'error')
   }
   bindSingleTagGroup(stageTagsEl);
   bindSingleTagGroup(exchangeTagsEl);
+  bindSingleTagGroup(categoryTagsEl);
+
+  /* ---- 资产类别：由业态列关键词推导（基础设施类关键词命中 → 基础设施，其余 → 商业不动产） ---- */
+  var INFRA_KEYWORDS = ['仓储物流', '物流', '产业园区', '园区', '高速', '水务', '能源', '生物质', '港口', '机场', '铁路', '市政', '环保', '污水', '收费公路'];
+  function rowCategory(row) {
+    var t = cellText(row, 8);
+    if (!t || t === '—') return '';
+    for (var i = 0; i < INFRA_KEYWORDS.length; i++) {
+      if (t.indexOf(INFRA_KEYWORDS[i]) > -1) return '基础设施';
+    }
+    return '商业不动产';
+  }
 
   /* 高级筛选开合 */
   var adv = $('advFilter'), toggleAdv = $('toggleAdv');
@@ -1416,6 +1436,7 @@ loadOverview().catch(function () { R2.toast('加载基金指标失败', 'error')
       keyword: $('keyword').value.trim(),
       stage: singleValue(stageTagsEl),
       exchange: singleValue(exchangeTagsEl),
+      category: singleValue(categoryTagsEl),
       types: checkedTypes(),
       dateStart: $('dateStart').value,
       dateEnd: $('dateEnd').value,
@@ -1436,6 +1457,7 @@ loadOverview().catch(function () { R2.toast('加载基金指标失败', 'error')
       if (stageText !== f.stage && stageText !== STAGE_CN[f.stage]) return false;
     }
     if (f.exchange && cellText(row, 3) !== f.exchange) return false;
+    if (f.category && rowCategory(row) !== f.category) return false;
     if (f.types.length) {
       var typeText = cellText(row, 8);
       var hit = f.types.some(function (t) { return typeText.indexOf(t) > -1; });
@@ -1479,7 +1501,7 @@ loadOverview().catch(function () { R2.toast('加载基金指标失败', 'error')
   }
 
   function hasAnyFilter(f) {
-    return !!(f.keyword || f.stage || f.exchange || f.types.length ||
+    return !!(f.keyword || f.stage || f.exchange || f.category || f.types.length ||
       f.dateStart || f.dateEnd || f.valMin !== null || f.valMax !== null ||
       f.scaleMin !== null || f.scaleMax !== null);
   }
@@ -1490,6 +1512,7 @@ loadOverview().catch(function () { R2.toast('加载基金指标失败', 'error')
     if (f.keyword) tags.push({ key: 'keyword', label: '关键词：' + f.keyword });
     if (f.stage) tags.push({ key: 'stage', label: '阶段：' + STAGE_CN[f.stage] });
     if (f.exchange) tags.push({ key: 'exchange', label: '交易所：' + f.exchange });
+    if (f.category) tags.push({ key: 'category', label: '资产类别：' + f.category });
     f.types.forEach(function (t) { tags.push({ key: 'type:' + t, label: '业态：' + t }); });
     if (f.dateStart || f.dateEnd) tags.push({ key: 'date', label: '发布日期：' + (f.dateStart || '…') + ' ~ ' + (f.dateEnd || '…') });
     if (f.valMin !== null || f.valMax !== null) tags.push({ key: 'val', label: '估值：' + (f.valMin !== null ? f.valMin : '…') + ' ~ ' + (f.valMax !== null ? f.valMax : '…') + ' 亿' });
@@ -1514,6 +1537,7 @@ loadOverview().catch(function () { R2.toast('加载基金指标失败', 'error')
     if (key === 'keyword') $('keyword').value = '';
     else if (key === 'stage') clearSingleGroup(stageTagsEl);
     else if (key === 'exchange') clearSingleGroup(exchangeTagsEl);
+    else if (key === 'category') clearSingleGroup(categoryTagsEl);
     else if (key === 'date') { $('dateStart').value = ''; $('dateEnd').value = ''; }
     else if (key === 'val') { $('valMin').value = ''; $('valMax').value = ''; }
     else if (key === 'scale') { $('scaleMin').value = ''; $('scaleMax').value = ''; }
@@ -1535,6 +1559,7 @@ loadOverview().catch(function () { R2.toast('加载基金指标失败', 'error')
     refreshMsUi();
     clearSingleGroup(stageTagsEl);
     clearSingleGroup(exchangeTagsEl);
+    clearSingleGroup(categoryTagsEl);
     applyFilters();
   }
 
